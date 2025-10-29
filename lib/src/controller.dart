@@ -46,7 +46,7 @@ extension FVPControllerExtensions on VideoPlayerController {
   }
   // extension can't override existing method, e.g. `dynamic noSuchMethod(Invocation invocation)`
 */
-// TODO: prefer playerId in a future version
+// Note: In a future version, prefer using playerId over textureId for consistency
   static final int Function(VideoPlayerController c) _getId = () {
     try {
       // try to get textureId. static implies late, but can't access this

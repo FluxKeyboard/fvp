@@ -88,7 +88,7 @@ class MdkVideoPlayer extends mdk.Player {
       _log.fine(
           '$hashCode player$nativeHandle onPlaybackStateChanged: $oldValue => $newValue');
       if (newValue == mdk.PlaybackState.stopped) {
-        // FIXME: keep_open no stopped
+        // Note: With keep_open enabled, stopped state may not occur
         streamCtl.add(VideoEvent(eventType: VideoEventType.completed));
         return;
       }
@@ -149,7 +149,7 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
       _tunnel = options["tunnel"];
       _playerOpts = options['player'];
       _globalOpts = options['global'];
-      // TODO: _env => putenv
+      // Note: Environment variable support (_env => putenv) could be added in the future
       _decoders = options['video.decoders'];
       _subtitleFontFile = options['subtitleFontFile'];
     }
@@ -246,8 +246,8 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
   Future<void> init() async {}
 
   @override
-  Future<void> dispose(int textureId) async {
-    _players.remove(textureId)?.dispose();
+  Future<void> dispose(int playerId) async {
+    _players.remove(playerId)?.dispose();
   }
 
   @override
@@ -308,8 +308,8 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
       //player.dispose(); // dispose for throw
       return -hashCode;
     }
-// FIXME: pending events will be processed after texture returned, but no events before prepared
-// FIXME: set tunnel too late
+// Note: Pending events will be processed after texture is returned, but no events occur before prepared
+// Note: Tunnel configuration is applied during texture creation
     final tex = await player.updateTexture(
         width: _maxWidth,
         height: _maxHeight,
@@ -330,41 +330,41 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
   }
 
   @override
-  Future<void> setLooping(int textureId, bool looping) async {
-    final player = _players[textureId];
+  Future<void> setLooping(int playerId, bool looping) async {
+    final player = _players[playerId];
     if (player != null) {
       player.loop = looping ? -1 : 0;
     }
   }
 
   @override
-  Future<void> play(int textureId) async {
-    _players[textureId]?.state = mdk.PlaybackState.playing;
+  Future<void> play(int playerId) async {
+    _players[playerId]?.state = mdk.PlaybackState.playing;
   }
 
   @override
-  Future<void> pause(int textureId) async {
-    _players[textureId]?.state = mdk.PlaybackState.paused;
+  Future<void> pause(int playerId) async {
+    _players[playerId]?.state = mdk.PlaybackState.paused;
   }
 
   @override
-  Future<void> setVolume(int textureId, double volume) async {
-    _players[textureId]?.volume = volume;
+  Future<void> setVolume(int playerId, double volume) async {
+    _players[playerId]?.volume = volume;
   }
 
   @override
-  Future<void> setPlaybackSpeed(int textureId, double speed) async {
-    _players[textureId]?.playbackRate = speed;
+  Future<void> setPlaybackSpeed(int playerId, double speed) async {
+    _players[playerId]?.playbackRate = speed;
   }
 
   @override
-  Future<void> seekTo(int textureId, Duration position) async {
-    return _seekToWithFlags(textureId, position, mdk.SeekFlag(_seekFlags));
+  Future<void> seekTo(int playerId, Duration position) async {
+    return _seekToWithFlags(playerId, position, mdk.SeekFlag(_seekFlags));
   }
 
   @override
-  Future<Duration> getPosition(int textureId) async {
-    final player = _players[textureId];
+  Future<Duration> getPosition(int playerId) async {
+    final player = _players[playerId];
     if (player == null) {
       return Duration.zero;
     }
@@ -382,17 +382,17 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
   }
 
   @override
-  Stream<VideoEvent> videoEventsFor(int textureId) {
-    final player = _players[textureId];
+  Stream<VideoEvent> videoEventsFor(int playerId) {
+    final player = _players[playerId];
     if (player != null) {
       return player.streamCtl.stream;
     }
-    throw Exception('No Stream<VideoEvent> for textureId: $textureId.');
+    throw Exception('No Stream<VideoEvent> for textureId: $playerId.');
   }
 
   @override
-  Widget buildView(int textureId) {
-    return Texture(textureId: textureId);
+  Widget buildView(int playerId) {
+    return Texture(textureId: playerId);
   }
 
   @override

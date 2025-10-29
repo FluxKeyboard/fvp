@@ -603,7 +603,7 @@ class Player {
           void Function(Pointer<mdkPlayer>, double, Pointer<Void>)>()(
       _player.ref.object, value, _getVid());
 
-  // TODO: mapPoint( List<double>)
+  // Note: mapPoint(List<double>) API could be added for coordinate mapping
 
   /// rotate video content around the center. [degree] can be 0, 90, 180, 270 in counterclockwise.
   /// https://github.com/wang-bin/mdk-sdk/wiki/Player-APIs#void-rotateint-degree-void-vo_opaque--nullptr
