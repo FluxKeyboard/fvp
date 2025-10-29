@@ -28,7 +28,7 @@ MdkVideoPlayerPlatform get _platform {
 ///
 /// All methods in this extension must be called after initialized, otherwise no effect.
 extension FVPControllerExtensions on VideoPlayerController {
-/*
+  /*
   static int Function(VideoPlayerController)? _idGetter;
   int _getId(VideoPlayerController controller) {
     _idGetter ??= _getIdFunc();
@@ -46,7 +46,7 @@ extension FVPControllerExtensions on VideoPlayerController {
   }
   // extension can't override existing method, e.g. `dynamic noSuchMethod(Invocation invocation)`
 */
-// Note: In a future version, prefer using playerId over textureId for consistency
+  // Note: In a future version, prefer using playerId over textureId for consistency
   static final int Function(VideoPlayerController c) _getId = () {
     try {
       // try to get textureId. static implies late, but can't access this

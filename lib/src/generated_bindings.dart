@@ -10,24 +10,24 @@ import 'dart:ffi' as ffi;
 class NativeLibrary {
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-      _lookup;
+  _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
   NativeLibrary(ffi.DynamicLibrary dynamicLibrary)
-      : _lookup = dynamicLibrary.lookup;
+    : _lookup = dynamicLibrary.lookup;
 
   /// The symbols are looked up with [lookup].
   NativeLibrary.fromLookup(
-      ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-          lookup)
-      : _lookup = lookup;
+    ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
+  ) : _lookup = lookup;
 
   int MDK_version() {
     return _MDK_version();
   }
 
-  late final _MDK_versionPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function()>>('MDK_version');
+  late final _MDK_versionPtr = _lookup<ffi.NativeFunction<ffi.Int Function()>>(
+    'MDK_version',
+  );
   late final _MDK_version = _MDK_versionPtr.asFunction<int Function()>();
 
   /// !
@@ -36,31 +36,26 @@ class NativeLibrary {
   /// Set/Get current java vm
   /// \param vm null to get current vm
   /// \return vm before set
-  ffi.Pointer<ffi.Void> MDK_javaVM(
-    ffi.Pointer<ffi.Void> vm,
-  ) {
-    return _MDK_javaVM(
-      vm,
-    );
+  ffi.Pointer<ffi.Void> MDK_javaVM(ffi.Pointer<ffi.Void> vm) {
+    return _MDK_javaVM(vm);
   }
 
   late final _MDK_javaVMPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>>('MDK_javaVM');
-  late final _MDK_javaVM = _MDK_javaVMPtr.asFunction<
-      ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
+    ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>
+  >('MDK_javaVM');
+  late final _MDK_javaVM =
+      _MDK_javaVMPtr.asFunction<
+        ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)
+      >();
 
-  void MDK_setLogLevel(
-    int value,
-  ) {
-    return _MDK_setLogLevel(
-      value,
-    );
+  void MDK_setLogLevel(int value) {
+    return _MDK_setLogLevel(value);
   }
 
   late final _MDK_setLogLevelPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>(
-          'MDK_setLogLevel');
+        'MDK_setLogLevel',
+      );
   late final _MDK_setLogLevel =
       _MDK_setLogLevelPtr.asFunction<void Function(int)>();
 
@@ -72,17 +67,14 @@ class NativeLibrary {
       _lookup<ffi.NativeFunction<ffi.Int32 Function()>>('MDK_logLevel');
   late final _MDK_logLevel = _MDK_logLevelPtr.asFunction<int Function()>();
 
-  void MDK_setLogHandler(
-    mdkLogHandler arg0,
-  ) {
-    return _MDK_setLogHandler(
-      arg0,
-    );
+  void MDK_setLogHandler(mdkLogHandler arg0) {
+    return _MDK_setLogHandler(arg0);
   }
 
   late final _MDK_setLogHandlerPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(mdkLogHandler)>>(
-          'MDK_setLogHandler');
+        'MDK_setLogHandler',
+      );
   late final _MDK_setLogHandler =
       _MDK_setLogHandlerPtr.asFunction<void Function(mdkLogHandler)>();
 
@@ -90,359 +82,386 @@ class NativeLibrary {
     ffi.Pointer<ffi.Char> key,
     ffi.Pointer<ffi.Char> value,
   ) {
-    return _MDK_setGlobalOptionString(
-      key,
-      value,
-    );
+    return _MDK_setGlobalOptionString(key, value);
   }
 
   late final _MDK_setGlobalOptionStringPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>>('MDK_setGlobalOptionString');
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)
+    >
+  >('MDK_setGlobalOptionString');
   late final _MDK_setGlobalOptionString =
       _MDK_setGlobalOptionStringPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+        void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)
+      >();
 
-  void MDK_setGlobalOptionInt32(
-    ffi.Pointer<ffi.Char> key,
-    int value,
-  ) {
-    return _MDK_setGlobalOptionInt32(
-      key,
-      value,
-    );
+  void MDK_setGlobalOptionInt32(ffi.Pointer<ffi.Char> key, int value) {
+    return _MDK_setGlobalOptionInt32(key, value);
   }
 
   late final _MDK_setGlobalOptionInt32Ptr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Int)>>(
-      'MDK_setGlobalOptionInt32');
-  late final _MDK_setGlobalOptionInt32 = _MDK_setGlobalOptionInt32Ptr
-      .asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Int)>
+  >('MDK_setGlobalOptionInt32');
+  late final _MDK_setGlobalOptionInt32 =
+      _MDK_setGlobalOptionInt32Ptr.asFunction<
+        void Function(ffi.Pointer<ffi.Char>, int)
+      >();
 
-  void MDK_setGlobalOptionFloat(
-    ffi.Pointer<ffi.Char> key,
-    double value,
-  ) {
-    return _MDK_setGlobalOptionFloat(
-      key,
-      value,
-    );
+  void MDK_setGlobalOptionFloat(ffi.Pointer<ffi.Char> key, double value) {
+    return _MDK_setGlobalOptionFloat(key, value);
   }
 
   late final _MDK_setGlobalOptionFloatPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Float)>>(
-      'MDK_setGlobalOptionFloat');
-  late final _MDK_setGlobalOptionFloat = _MDK_setGlobalOptionFloatPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Char>, double)>();
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Float)>
+  >('MDK_setGlobalOptionFloat');
+  late final _MDK_setGlobalOptionFloat =
+      _MDK_setGlobalOptionFloatPtr.asFunction<
+        void Function(ffi.Pointer<ffi.Char>, double)
+      >();
 
   void MDK_setGlobalOptionPtr(
     ffi.Pointer<ffi.Char> key,
     ffi.Pointer<ffi.Void> value,
   ) {
-    return _MDK_setGlobalOptionPtr(
-      key,
-      value,
-    );
+    return _MDK_setGlobalOptionPtr(key, value);
   }
 
   late final _MDK_setGlobalOptionPtrPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Void>)>>('MDK_setGlobalOptionPtr');
-  late final _MDK_setGlobalOptionPtr = _MDK_setGlobalOptionPtrPtr.asFunction<
-      void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)>();
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)
+    >
+  >('MDK_setGlobalOptionPtr');
+  late final _MDK_setGlobalOptionPtr =
+      _MDK_setGlobalOptionPtrPtr.asFunction<
+        void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)
+      >();
 
   bool MDK_getGlobalOptionString(
     ffi.Pointer<ffi.Char> key,
     ffi.Pointer<ffi.Pointer<ffi.Char>> value,
   ) {
-    return _MDK_getGlobalOptionString(
-      key,
-      value,
-    );
+    return _MDK_getGlobalOptionString(key, value);
   }
 
   late final _MDK_getGlobalOptionStringPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(
-                  ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>>(
-      'MDK_getGlobalOptionString');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Pointer<ffi.Char>>,
+      )
+    >
+  >('MDK_getGlobalOptionString');
   late final _MDK_getGlobalOptionString =
       _MDK_getGlobalOptionStringPtr.asFunction<
-          bool Function(
-              ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
+        bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<ffi.Char>>)
+      >();
 
   bool MDK_getGlobalOptionInt32(
     ffi.Pointer<ffi.Char> key,
     ffi.Pointer<ffi.Int> value,
   ) {
-    return _MDK_getGlobalOptionInt32(
-      key,
-      value,
-    );
+    return _MDK_getGlobalOptionInt32(key, value);
   }
 
   late final _MDK_getGlobalOptionInt32Ptr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Int>)>>('MDK_getGlobalOptionInt32');
-  late final _MDK_getGlobalOptionInt32 = _MDK_getGlobalOptionInt32Ptr
-      .asFunction<bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Int>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Int>)
+    >
+  >('MDK_getGlobalOptionInt32');
+  late final _MDK_getGlobalOptionInt32 =
+      _MDK_getGlobalOptionInt32Ptr.asFunction<
+        bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Int>)
+      >();
 
   bool MDK_getGlobalOptionPtr(
     ffi.Pointer<ffi.Char> key,
     ffi.Pointer<ffi.Pointer<ffi.Void>> value,
   ) {
-    return _MDK_getGlobalOptionPtr(
-      key,
-      value,
-    );
+    return _MDK_getGlobalOptionPtr(key, value);
   }
 
   late final _MDK_getGlobalOptionPtrPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Pointer<ffi.Void>>)>>('MDK_getGlobalOptionPtr');
-  late final _MDK_getGlobalOptionPtr = _MDK_getGlobalOptionPtrPtr.asFunction<
-      bool Function(
-          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<ffi.Void>>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Pointer<ffi.Void>>,
+      )
+    >
+  >('MDK_getGlobalOptionPtr');
+  late final _MDK_getGlobalOptionPtr =
+      _MDK_getGlobalOptionPtrPtr.asFunction<
+        bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<ffi.Void>>)
+      >();
 
-  ffi.Pointer<ffi.Char> MDK_strdup(
-    ffi.Pointer<ffi.Char> strSource,
-  ) {
-    return _MDK_strdup(
-      strSource,
-    );
+  ffi.Pointer<ffi.Char> MDK_strdup(ffi.Pointer<ffi.Char> strSource) {
+    return _MDK_strdup(strSource);
   }
 
   late final _MDK_strdupPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Char>)>>('MDK_strdup');
-  late final _MDK_strdup = _MDK_strdupPtr.asFunction<
-      ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Char>)>();
+    ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Char>)>
+  >('MDK_strdup');
+  late final _MDK_strdup =
+      _MDK_strdupPtr.asFunction<
+        ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Char>)
+      >();
 
   void MDK_AudioStreamCodecParameters(
     ffi.Pointer<mdkAudioStreamInfo> arg0,
     ffi.Pointer<mdkAudioCodecParameters> p,
   ) {
-    return _MDK_AudioStreamCodecParameters(
-      arg0,
-      p,
-    );
+    return _MDK_AudioStreamCodecParameters(arg0, p);
   }
 
   late final _MDK_AudioStreamCodecParametersPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<mdkAudioStreamInfo>,
-                  ffi.Pointer<mdkAudioCodecParameters>)>>(
-      'MDK_AudioStreamCodecParameters');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkAudioStreamInfo>,
+        ffi.Pointer<mdkAudioCodecParameters>,
+      )
+    >
+  >('MDK_AudioStreamCodecParameters');
   late final _MDK_AudioStreamCodecParameters =
       _MDK_AudioStreamCodecParametersPtr.asFunction<
-          void Function(ffi.Pointer<mdkAudioStreamInfo>,
-              ffi.Pointer<mdkAudioCodecParameters>)>();
+        void Function(
+          ffi.Pointer<mdkAudioStreamInfo>,
+          ffi.Pointer<mdkAudioCodecParameters>,
+        )
+      >();
 
   bool MDK_AudioStreamMetadata(
     ffi.Pointer<mdkAudioStreamInfo> arg0,
     ffi.Pointer<mdkStringMapEntry> entry,
   ) {
-    return _MDK_AudioStreamMetadata(
-      arg0,
-      entry,
-    );
+    return _MDK_AudioStreamMetadata(arg0, entry);
   }
 
   late final _MDK_AudioStreamMetadataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<mdkAudioStreamInfo>,
-              ffi.Pointer<mdkStringMapEntry>)>>('MDK_AudioStreamMetadata');
-  late final _MDK_AudioStreamMetadata = _MDK_AudioStreamMetadataPtr.asFunction<
-      bool Function(
-          ffi.Pointer<mdkAudioStreamInfo>, ffi.Pointer<mdkStringMapEntry>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkAudioStreamInfo>,
+        ffi.Pointer<mdkStringMapEntry>,
+      )
+    >
+  >('MDK_AudioStreamMetadata');
+  late final _MDK_AudioStreamMetadata =
+      _MDK_AudioStreamMetadataPtr.asFunction<
+        bool Function(
+          ffi.Pointer<mdkAudioStreamInfo>,
+          ffi.Pointer<mdkStringMapEntry>,
+        )
+      >();
 
   void MDK_VideoStreamCodecParameters(
     ffi.Pointer<mdkVideoStreamInfo> arg0,
     ffi.Pointer<mdkVideoCodecParameters> p,
   ) {
-    return _MDK_VideoStreamCodecParameters(
-      arg0,
-      p,
-    );
+    return _MDK_VideoStreamCodecParameters(arg0, p);
   }
 
   late final _MDK_VideoStreamCodecParametersPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<mdkVideoStreamInfo>,
-                  ffi.Pointer<mdkVideoCodecParameters>)>>(
-      'MDK_VideoStreamCodecParameters');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkVideoStreamInfo>,
+        ffi.Pointer<mdkVideoCodecParameters>,
+      )
+    >
+  >('MDK_VideoStreamCodecParameters');
   late final _MDK_VideoStreamCodecParameters =
       _MDK_VideoStreamCodecParametersPtr.asFunction<
-          void Function(ffi.Pointer<mdkVideoStreamInfo>,
-              ffi.Pointer<mdkVideoCodecParameters>)>();
+        void Function(
+          ffi.Pointer<mdkVideoStreamInfo>,
+          ffi.Pointer<mdkVideoCodecParameters>,
+        )
+      >();
 
   bool MDK_VideoStreamMetadata(
     ffi.Pointer<mdkVideoStreamInfo> arg0,
     ffi.Pointer<mdkStringMapEntry> entry,
   ) {
-    return _MDK_VideoStreamMetadata(
-      arg0,
-      entry,
-    );
+    return _MDK_VideoStreamMetadata(arg0, entry);
   }
 
   late final _MDK_VideoStreamMetadataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<mdkVideoStreamInfo>,
-              ffi.Pointer<mdkStringMapEntry>)>>('MDK_VideoStreamMetadata');
-  late final _MDK_VideoStreamMetadata = _MDK_VideoStreamMetadataPtr.asFunction<
-      bool Function(
-          ffi.Pointer<mdkVideoStreamInfo>, ffi.Pointer<mdkStringMapEntry>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkVideoStreamInfo>,
+        ffi.Pointer<mdkStringMapEntry>,
+      )
+    >
+  >('MDK_VideoStreamMetadata');
+  late final _MDK_VideoStreamMetadata =
+      _MDK_VideoStreamMetadataPtr.asFunction<
+        bool Function(
+          ffi.Pointer<mdkVideoStreamInfo>,
+          ffi.Pointer<mdkStringMapEntry>,
+        )
+      >();
 
   ffi.Pointer<ffi.Uint8> MDK_VideoStreamData(
     ffi.Pointer<mdkVideoStreamInfo> arg0,
     ffi.Pointer<ffi.Int> len,
     int flags,
   ) {
-    return _MDK_VideoStreamData(
-      arg0,
-      len,
-      flags,
-    );
+    return _MDK_VideoStreamData(arg0, len, flags);
   }
 
   late final _MDK_VideoStreamDataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Uint8> Function(ffi.Pointer<mdkVideoStreamInfo>,
-              ffi.Pointer<ffi.Int>, ffi.Int)>>('MDK_VideoStreamData');
-  late final _MDK_VideoStreamData = _MDK_VideoStreamDataPtr.asFunction<
+    ffi.NativeFunction<
       ffi.Pointer<ffi.Uint8> Function(
-          ffi.Pointer<mdkVideoStreamInfo>, ffi.Pointer<ffi.Int>, int)>();
+        ffi.Pointer<mdkVideoStreamInfo>,
+        ffi.Pointer<ffi.Int>,
+        ffi.Int,
+      )
+    >
+  >('MDK_VideoStreamData');
+  late final _MDK_VideoStreamData =
+      _MDK_VideoStreamDataPtr.asFunction<
+        ffi.Pointer<ffi.Uint8> Function(
+          ffi.Pointer<mdkVideoStreamInfo>,
+          ffi.Pointer<ffi.Int>,
+          int,
+        )
+      >();
 
   void MDK_SubtitleStreamCodecParameters(
     ffi.Pointer<mdkSubtitleStreamInfo> arg0,
     ffi.Pointer<mdkSubtitleCodecParameters> p,
   ) {
-    return _MDK_SubtitleStreamCodecParameters(
-      arg0,
-      p,
-    );
+    return _MDK_SubtitleStreamCodecParameters(arg0, p);
   }
 
   late final _MDK_SubtitleStreamCodecParametersPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<mdkSubtitleStreamInfo>,
-                  ffi.Pointer<mdkSubtitleCodecParameters>)>>(
-      'MDK_SubtitleStreamCodecParameters');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkSubtitleStreamInfo>,
+        ffi.Pointer<mdkSubtitleCodecParameters>,
+      )
+    >
+  >('MDK_SubtitleStreamCodecParameters');
   late final _MDK_SubtitleStreamCodecParameters =
       _MDK_SubtitleStreamCodecParametersPtr.asFunction<
-          void Function(ffi.Pointer<mdkSubtitleStreamInfo>,
-              ffi.Pointer<mdkSubtitleCodecParameters>)>();
+        void Function(
+          ffi.Pointer<mdkSubtitleStreamInfo>,
+          ffi.Pointer<mdkSubtitleCodecParameters>,
+        )
+      >();
 
   bool MDK_SubtitleStreamMetadata(
     ffi.Pointer<mdkSubtitleStreamInfo> arg0,
     ffi.Pointer<mdkStringMapEntry> entry,
   ) {
-    return _MDK_SubtitleStreamMetadata(
-      arg0,
-      entry,
-    );
+    return _MDK_SubtitleStreamMetadata(arg0, entry);
   }
 
   late final _MDK_SubtitleStreamMetadataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<mdkSubtitleStreamInfo>,
-              ffi.Pointer<mdkStringMapEntry>)>>('MDK_SubtitleStreamMetadata');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkSubtitleStreamInfo>,
+        ffi.Pointer<mdkStringMapEntry>,
+      )
+    >
+  >('MDK_SubtitleStreamMetadata');
   late final _MDK_SubtitleStreamMetadata =
       _MDK_SubtitleStreamMetadataPtr.asFunction<
-          bool Function(ffi.Pointer<mdkSubtitleStreamInfo>,
-              ffi.Pointer<mdkStringMapEntry>)>();
+        bool Function(
+          ffi.Pointer<mdkSubtitleStreamInfo>,
+          ffi.Pointer<mdkStringMapEntry>,
+        )
+      >();
 
   bool MDK_ProgramMetadata(
     ffi.Pointer<mdkProgramInfo> arg0,
     ffi.Pointer<mdkStringMapEntry> entry,
   ) {
-    return _MDK_ProgramMetadata(
-      arg0,
-      entry,
-    );
+    return _MDK_ProgramMetadata(arg0, entry);
   }
 
   late final _MDK_ProgramMetadataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<mdkProgramInfo>,
-              ffi.Pointer<mdkStringMapEntry>)>>('MDK_ProgramMetadata');
-  late final _MDK_ProgramMetadata = _MDK_ProgramMetadataPtr.asFunction<
-      bool Function(
-          ffi.Pointer<mdkProgramInfo>, ffi.Pointer<mdkStringMapEntry>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkProgramInfo>,
+        ffi.Pointer<mdkStringMapEntry>,
+      )
+    >
+  >('MDK_ProgramMetadata');
+  late final _MDK_ProgramMetadata =
+      _MDK_ProgramMetadataPtr.asFunction<
+        bool Function(
+          ffi.Pointer<mdkProgramInfo>,
+          ffi.Pointer<mdkStringMapEntry>,
+        )
+      >();
 
   bool MDK_MediaMetadata(
     ffi.Pointer<mdkMediaInfo> arg0,
     ffi.Pointer<mdkStringMapEntry> entry,
   ) {
-    return _MDK_MediaMetadata(
-      arg0,
-      entry,
-    );
+    return _MDK_MediaMetadata(arg0, entry);
   }
 
   late final _MDK_MediaMetadataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<mdkMediaInfo>,
-              ffi.Pointer<mdkStringMapEntry>)>>('MDK_MediaMetadata');
-  late final _MDK_MediaMetadata = _MDK_MediaMetadataPtr.asFunction<
-      bool Function(
-          ffi.Pointer<mdkMediaInfo>, ffi.Pointer<mdkStringMapEntry>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkMediaInfo>,
+        ffi.Pointer<mdkStringMapEntry>,
+      )
+    >
+  >('MDK_MediaMetadata');
+  late final _MDK_MediaMetadata =
+      _MDK_MediaMetadataPtr.asFunction<
+        bool Function(ffi.Pointer<mdkMediaInfo>, ffi.Pointer<mdkStringMapEntry>)
+      >();
 
   ffi.Pointer<mdkVideoFrameAPI> mdkVideoFrameAPI_new(
     int width,
     int height,
     int format,
   ) {
-    return _mdkVideoFrameAPI_new(
-      width,
-      height,
-      format,
-    );
+    return _mdkVideoFrameAPI_new(width, height, format);
   }
 
   late final _mdkVideoFrameAPI_newPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<mdkVideoFrameAPI> Function(
-              ffi.Int, ffi.Int, ffi.Int32)>>('mdkVideoFrameAPI_new');
-  late final _mdkVideoFrameAPI_new = _mdkVideoFrameAPI_newPtr
-      .asFunction<ffi.Pointer<mdkVideoFrameAPI> Function(int, int, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<mdkVideoFrameAPI> Function(ffi.Int, ffi.Int, ffi.Int32)
+    >
+  >('mdkVideoFrameAPI_new');
+  late final _mdkVideoFrameAPI_new =
+      _mdkVideoFrameAPI_newPtr
+          .asFunction<ffi.Pointer<mdkVideoFrameAPI> Function(int, int, int)>();
 
   void mdkVideoFrameAPI_delete(
     ffi.Pointer<ffi.Pointer<mdkVideoFrameAPI>> arg0,
   ) {
-    return _mdkVideoFrameAPI_delete(
-      arg0,
-    );
+    return _mdkVideoFrameAPI_delete(arg0);
   }
 
   late final _mdkVideoFrameAPI_deletePtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Pointer<mdkVideoFrameAPI>>)>>(
-      'mdkVideoFrameAPI_delete');
-  late final _mdkVideoFrameAPI_delete = _mdkVideoFrameAPI_deletePtr
-      .asFunction<void Function(ffi.Pointer<ffi.Pointer<mdkVideoFrameAPI>>)>();
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<ffi.Pointer<mdkVideoFrameAPI>>)
+    >
+  >('mdkVideoFrameAPI_delete');
+  late final _mdkVideoFrameAPI_delete =
+      _mdkVideoFrameAPI_deletePtr
+          .asFunction<
+            void Function(ffi.Pointer<ffi.Pointer<mdkVideoFrameAPI>>)
+          >();
 
   void mdkVideoBufferPoolFree(
     ffi.Pointer<ffi.Pointer<mdkVideoBufferPool>> pool,
   ) {
-    return _mdkVideoBufferPoolFree(
-      pool,
-    );
+    return _mdkVideoBufferPoolFree(pool);
   }
 
   late final _mdkVideoBufferPoolFreePtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Pointer<mdkVideoBufferPool>>)>>(
-      'mdkVideoBufferPoolFree');
-  late final _mdkVideoBufferPoolFree = _mdkVideoBufferPoolFreePtr.asFunction<
-      void Function(ffi.Pointer<ffi.Pointer<mdkVideoBufferPool>>)>();
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<ffi.Pointer<mdkVideoBufferPool>>)
+    >
+  >('mdkVideoBufferPoolFree');
+  late final _mdkVideoBufferPoolFree =
+      _mdkVideoBufferPoolFreePtr
+          .asFunction<
+            void Function(ffi.Pointer<ffi.Pointer<mdkVideoBufferPool>>)
+          >();
 
   ffi.Pointer<mdkPlayerAPI> mdkPlayerAPI_new() {
     return _mdkPlayerAPI_new();
@@ -450,41 +469,41 @@ class NativeLibrary {
 
   late final _mdkPlayerAPI_newPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<mdkPlayerAPI> Function()>>(
-          'mdkPlayerAPI_new');
+        'mdkPlayerAPI_new',
+      );
   late final _mdkPlayerAPI_new =
       _mdkPlayerAPI_newPtr.asFunction<ffi.Pointer<mdkPlayerAPI> Function()>();
 
-  void mdkPlayerAPI_delete(
-    ffi.Pointer<ffi.Pointer<mdkPlayerAPI>> arg0,
-  ) {
-    return _mdkPlayerAPI_delete(
-      arg0,
-    );
+  void mdkPlayerAPI_delete(ffi.Pointer<ffi.Pointer<mdkPlayerAPI>> arg0) {
+    return _mdkPlayerAPI_delete(arg0);
   }
 
   late final _mdkPlayerAPI_deletePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<ffi.Pointer<mdkPlayerAPI>>)>>('mdkPlayerAPI_delete');
-  late final _mdkPlayerAPI_delete = _mdkPlayerAPI_deletePtr
-      .asFunction<void Function(ffi.Pointer<ffi.Pointer<mdkPlayerAPI>>)>();
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<ffi.Pointer<mdkPlayerAPI>>)
+    >
+  >('mdkPlayerAPI_delete');
+  late final _mdkPlayerAPI_delete =
+      _mdkPlayerAPI_deletePtr
+          .asFunction<void Function(ffi.Pointer<ffi.Pointer<mdkPlayerAPI>>)>();
 
   void mdkPlayerAPI_reset(
     ffi.Pointer<ffi.Pointer<mdkPlayerAPI>> arg0,
     bool release,
   ) {
-    return _mdkPlayerAPI_reset(
-      arg0,
-      release,
-    );
+    return _mdkPlayerAPI_reset(arg0, release);
   }
 
   late final _mdkPlayerAPI_resetPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Pointer<mdkPlayerAPI>>,
-              ffi.Bool)>>('mdkPlayerAPI_reset');
-  late final _mdkPlayerAPI_reset = _mdkPlayerAPI_resetPtr.asFunction<
-      void Function(ffi.Pointer<ffi.Pointer<mdkPlayerAPI>>, bool)>();
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<ffi.Pointer<mdkPlayerAPI>>, ffi.Bool)
+    >
+  >('mdkPlayerAPI_reset');
+  late final _mdkPlayerAPI_reset =
+      _mdkPlayerAPI_resetPtr
+          .asFunction<
+            void Function(ffi.Pointer<ffi.Pointer<mdkPlayerAPI>>, bool)
+          >();
 
   void MDK_foreignGLContextDestroyed() {
     return _MDK_foreignGLContextDestroyed();
@@ -492,7 +511,8 @@ class NativeLibrary {
 
   late final _MDK_foreignGLContextDestroyedPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function()>>(
-          'MDK_foreignGLContextDestroyed');
+        'MDK_foreignGLContextDestroyed',
+      );
   late final _MDK_foreignGLContextDestroyed =
       _MDK_foreignGLContextDestroyedPtr.asFunction<void Function()>();
 }
@@ -524,17 +544,24 @@ abstract class MDK_MediaStatus {
 
 final class mdkMediaStatusChangedCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi
-      .NativeFunction<ffi.Bool Function(ffi.Int32, ffi.Pointer<ffi.Void>)>> cb;
+    ffi.NativeFunction<ffi.Bool Function(ffi.Int32, ffi.Pointer<ffi.Void>)>
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
 
 final class mdkMediaStatusCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Int32 oldValue, ffi.Int32 newValue,
-              ffi.Pointer<ffi.Void> opaque)>> cb;
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Int32 oldValue,
+        ffi.Int32 newValue,
+        ffi.Pointer<ffi.Void> opaque,
+      )
+    >
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
@@ -552,8 +579,9 @@ abstract class MDK_State {
 
 final class mdkStateChangedCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi
-      .NativeFunction<ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Void>)>> cb;
+    ffi.NativeFunction<ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Void>)>
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
@@ -606,9 +634,11 @@ abstract class MDK_LogLevel {
 
 final class mdkLogHandler extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Int32, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)>> cb;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Void>)
+    >
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
@@ -947,73 +977,109 @@ abstract class MDK_PixelFormat {
 final class mdkVideoFrameAPI extends ffi.Struct {
   external ffi.Pointer<mdkVideoFrame> object;
 
-  external ffi
-      .Pointer<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mdkVideoFrame>)>>
-      planeCount;
+  external ffi.Pointer<
+    ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mdkVideoFrame>)>
+  >
+  planeCount;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<mdkVideoFrame>, ffi.Int)>> width;
+    ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mdkVideoFrame>, ffi.Int)>
+  >
+  width;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<mdkVideoFrame>, ffi.Int)>> height;
+    ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mdkVideoFrame>, ffi.Int)>
+  >
+  height;
 
   external ffi.Pointer<
-          ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<mdkVideoFrame>)>>
-      format;
+    ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<mdkVideoFrame>)>
+  >
+  format;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<mdkVideoFrame>,
-              ffi.Pointer<ffi.Uint8>,
-              ffi.Int,
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(ffi.Pointer<ffi.Pointer<ffi.Void>>)>>,
-              ffi.Int)>> addBuffer;
-
-  external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<mdkVideoFrame>,
-              ffi.Pointer<ffi.Pointer<ffi.Uint8>>,
-              ffi.Pointer<ffi.Int>)>> setBuffers;
-
-  external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Uint8> Function(
-              ffi.Pointer<mdkVideoFrame>, ffi.Int)>> bufferData;
-
-  external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<mdkVideoFrame>, ffi.Int)>> bytesPerLine;
-
-  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkVideoFrame>,
+        ffi.Pointer<ffi.Uint8>,
+        ffi.Int,
+        ffi.Pointer<ffi.Void>,
+        ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<mdkVideoFrame>, ffi.Double)>>
-      setTimestamp;
+            ffi.Void Function(ffi.Pointer<ffi.Pointer<ffi.Void>>)
+          >
+        >,
+        ffi.Int,
+      )
+    >
+  >
+  addBuffer;
 
   external ffi.Pointer<
-          ffi.NativeFunction<ffi.Double Function(ffi.Pointer<mdkVideoFrame>)>>
-      timestamp;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkVideoFrame>,
+        ffi.Pointer<ffi.Pointer<ffi.Uint8>>,
+        ffi.Pointer<ffi.Int>,
+      )
+    >
+  >
+  setBuffers;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Pointer<mdkVideoFrameAPI> Function(
-              ffi.Pointer<mdkVideoFrame>, ffi.Int32, ffi.Int, ffi.Int)>> to;
+    ffi.NativeFunction<
+      ffi.Pointer<ffi.Uint8> Function(ffi.Pointer<mdkVideoFrame>, ffi.Int)
+    >
+  >
+  bufferData;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<mdkVideoFrame>, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>, ffi.Float)>> save;
+    ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mdkVideoFrame>, ffi.Int)>
+  >
+  bytesPerLine;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Pointer<mdkVideoFrameAPI> Function(
-              ffi.Pointer<mdkVideoFrame>)>> onDestroy;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkVideoFrame>, ffi.Double)
+    >
+  >
+  setTimestamp;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<ffi.Double Function(ffi.Pointer<mdkVideoFrame>)>
+  >
+  timestamp;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Pointer<mdkVideoFrameAPI> Function(
+        ffi.Pointer<mdkVideoFrame>,
+        ffi.Int32,
+        ffi.Int,
+        ffi.Int,
+      )
+    >
+  >
+  to;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkVideoFrame>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Float,
+      )
+    >
+  >
+  save;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Pointer<mdkVideoFrameAPI> Function(ffi.Pointer<mdkVideoFrame>)
+    >
+  >
+  onDestroy;
 
   /// !
   /// \brief mdkVideoFrameAPI_fromDX11
@@ -1022,22 +1088,30 @@ final class mdkVideoFrameAPI extends ffi.Struct {
   /// \param width frame width, can be 0, then the width is the texture width
   /// \param height frame height, can be 0, then the height is the texture height
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<mdkVideoFrame>,
-              ffi.Pointer<ffi.Pointer<mdkVideoBufferPool>>,
-              ffi.Pointer<mdkDX11Resource>,
-              ffi.Int,
-              ffi.Int)>> fromDX11;
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkVideoFrame>,
+        ffi.Pointer<ffi.Pointer<mdkVideoBufferPool>>,
+        ffi.Pointer<mdkDX11Resource>,
+        ffi.Int,
+        ffi.Int,
+      )
+    >
+  >
+  fromDX11;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<mdkVideoFrame>,
-              ffi.Pointer<ffi.Pointer<mdkVideoBufferPool>>,
-              ffi.Pointer<mdkDX9Resource>,
-              ffi.Int,
-              ffi.Int)>> fromDX9;
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkVideoFrame>,
+        ffi.Pointer<ffi.Pointer<mdkVideoBufferPool>>,
+        ffi.Pointer<mdkDX9Resource>,
+        ffi.Int,
+        ffi.Int,
+      )
+    >
+  >
+  fromDX9;
 
   external ffi.Pointer<ffi.NativeFunction<ffi.Bool Function()>> fromDX12;
 
@@ -1048,7 +1122,9 @@ final class mdkVideoFrameAPI extends ffi.Struct {
   external ffi.Pointer<ffi.NativeFunction<ffi.Bool Function()>> fromGL;
 
   external ffi.Pointer<
-      ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<mdkVideoFrame>)>> toHost;
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<mdkVideoFrame>)>
+  >
+  toHost;
 
   @ffi.Array.multi([12])
   external ffi.Array<ffi.Pointer<ffi.Void>> reserved;
@@ -1078,7 +1154,9 @@ abstract class MDK_SurfaceType {
 
 final class mdkCurrentMediaChangedCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void> opaque)>> cb;
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void> opaque)>
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
@@ -1091,35 +1169,55 @@ final class mdkCurrentMediaChangedCallback extends ffi.Struct {
 /// example: always return false can be used as media information reader
 final class mdkPrepareCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Int64 position, ffi.Pointer<ffi.Bool> boost,
-              ffi.Pointer<ffi.Void> opaque)>> cb;
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Int64 position,
+        ffi.Pointer<ffi.Bool> boost,
+        ffi.Pointer<ffi.Void> opaque,
+      )
+    >
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
 
 final class mdkRenderCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void> vo_opaque,
-              ffi.Pointer<ffi.Void> opaque)>> cb;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<ffi.Void> vo_opaque,
+        ffi.Pointer<ffi.Void> opaque,
+      )
+    >
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
 
 final class mdkVideoCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<ffi.Pointer<mdkVideoFrameAPI>> pFrame,
-              ffi.Int track, ffi.Pointer<ffi.Void> opaque)>> cb;
+    ffi.NativeFunction<
+      ffi.Int Function(
+        ffi.Pointer<ffi.Pointer<mdkVideoFrameAPI>> pFrame,
+        ffi.Int track,
+        ffi.Pointer<ffi.Void> opaque,
+      )
+    >
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
 
 final class mdkSeekCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64 ms, ffi.Pointer<ffi.Void> opaque)>> cb;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Int64 ms, ffi.Pointer<ffi.Void> opaque)
+    >
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
@@ -1133,8 +1231,11 @@ final class mdkSeekCallback extends ffi.Struct {
 /// Default timeout is 10s
 final class mdkTimeoutCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Int64 ms, ffi.Pointer<ffi.Void> opaque)>> cb;
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Int64 ms, ffi.Pointer<ffi.Void> opaque)
+    >
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
@@ -1144,16 +1245,20 @@ final class mdkTimeoutCallback extends ffi.Struct {
 /// \return true if event is processed and should stop dispatching.
 final class mdkMediaEventCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<mdkMediaEvent>, ffi.Pointer<ffi.Void>)>> cb;
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<mdkMediaEvent>, ffi.Pointer<ffi.Void>)
+    >
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
 
 final class mdkLoopCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<ffi.Void Function(ffi.Int, ffi.Pointer<ffi.Void>)>> cb;
+    ffi.NativeFunction<ffi.Void Function(ffi.Int, ffi.Pointer<ffi.Void>)>
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
@@ -1181,25 +1286,38 @@ abstract class MDK_MapDirection {
 
 final class mdkSnapshotCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<mdkSnapshotRequest> req,
-              ffi.Double frameTime, ffi.Pointer<ffi.Void> opaque)>> cb;
+    ffi.NativeFunction<
+      ffi.Pointer<ffi.Char> Function(
+        ffi.Pointer<mdkSnapshotRequest> req,
+        ffi.Double frameTime,
+        ffi.Pointer<ffi.Void> opaque,
+      )
+    >
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
 
 final class mdkSyncCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<ffi.Double Function(ffi.Pointer<ffi.Void> opaque)>> cb;
+    ffi.NativeFunction<ffi.Double Function(ffi.Pointer<ffi.Void> opaque)>
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
 
 final class mdkSubtitleCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<ffi.Char> text, ffi.Pointer<ffi.Void> opaque)>> cb;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<ffi.Char> text,
+        ffi.Pointer<ffi.Void> opaque,
+      )
+    >
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }
@@ -1208,38 +1326,46 @@ final class mdkPlayerAPI extends ffi.Struct {
   external ffi.Pointer<mdkPlayer> object;
 
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Bool)>>
-      setMute;
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Bool)>
+  >
+  setMute;
 
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Float)>>
-      setVolume;
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Float)>
+  >
+  setVolume;
 
   /// !
   /// \brief setMedia
   /// Set a new media url.  If url changed, will stop current playback, and reset active tracks, external tracks set by setMedia(url, type)
   /// // MUST call setActiveTracks() after setMedia(), otherwise the 1st track in the media is used
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Char>)>>
-      setMedia;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Char>)
+    >
+  >
+  setMedia;
 
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Char>, ffi.Int32)>>
-      setMediaForType;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Int32,
+      )
+    >
+  >
+  setMediaForType;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<mdkPlayer>)>> url;
+    ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<mdkPlayer>)>
+  >
+  url;
 
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Bool)>>
-      setPreloadImmediately;
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Bool)>
+  >
+  setPreloadImmediately;
 
   /// !
   /// \brief setNextMedia
@@ -1248,43 +1374,64 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// setState(State::Stopped) only stops current media. Call setNextMedia(nullptr, -1) first to disable next media.
   /// Usually you can call `currentMediaChanged()` to set a callback which invokes `setNextMedia()`, then call `setMedia()`.
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Char>,
-              ffi.Int64, ffi.Int32)>> setNextMedia;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Int64,
+        ffi.Int32,
+      )
+    >
+  >
+  setNextMedia;
 
   /// !
   /// \brief currentMediaChanged
   /// Set a callback which is invoked when current media is stopped and a new media is about to play, or when setMedia() is called.
   /// Call before setMedia() to take effect.
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, mdkCurrentMediaChangedCallback)>>
-      currentMediaChanged;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, mdkCurrentMediaChangedCallback)
+    >
+  >
+  currentMediaChanged;
 
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>>
-      setAudioBackends;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Pointer<ffi.Char>>,
+      )
+    >
+  >
+  setAudioBackends;
 
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>>
-      setAudioDecoders;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Pointer<ffi.Char>>,
+      )
+    >
+  >
+  setAudioDecoders;
 
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>>
-      setVideoDecoders;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Pointer<ffi.Char>>,
+      )
+    >
+  >
+  setVideoDecoders;
 
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, ffi.Int64, mdkTimeoutCallback)>>
-      setTimeout;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int64, mdkTimeoutCallback)
+    >
+  >
+  setTimeout;
 
   /// !
   /// \brief prepare
@@ -1296,14 +1443,23 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// For fast seek(has flag SeekFlag::Fast), the first frame is a key frame whose timestamp >= startPosition
   /// For accurate seek(no flag SeekFlag::Fast), the first frame is the nearest frame whose timestamp <= startPosition, but the position passed to callback is the key frame position <= startPosition
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int64,
-              mdkPrepareCallback, ffi.Int32)>> prepare;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Int64,
+        mdkPrepareCallback,
+        ffi.Int32,
+      )
+    >
+  >
+  prepare;
 
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Pointer<mdkMediaInfo> Function(ffi.Pointer<mdkPlayer>)>>
-      mediaInfo;
+    ffi.NativeFunction<
+      ffi.Pointer<mdkMediaInfo> Function(ffi.Pointer<mdkPlayer>)
+    >
+  >
+  mediaInfo;
 
   /// !
   /// \brief setState
@@ -1316,27 +1472,33 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// so the final state is State::Stopped. Current solution is waitFor(State::Stopped) before setState(State::Playing).
   /// Usually no waitFor(State::Playing) because we want async load
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int32)>>
-      setState;
-
-  external ffi
-      .Pointer<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<mdkPlayer>)>>
-      state;
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int32)>
+  >
+  setState;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<mdkPlayer>, mdkStateChangedCallback)>> onStateChanged;
+    ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<mdkPlayer>)>
+  >
+  state;
 
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Bool Function(ffi.Pointer<mdkPlayer>, ffi.Int32, ffi.Long)>>
-      waitFor;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, mdkStateChangedCallback)
+    >
+  >
+  onStateChanged;
 
-  external ffi
-      .Pointer<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<mdkPlayer>)>>
-      mediaStatus;
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<mdkPlayer>, ffi.Int32, ffi.Long)
+    >
+  >
+  waitFor;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<mdkPlayer>)>
+  >
+  mediaStatus;
 
   /// !
   /// \brief onMediaStatusChanged
@@ -1344,10 +1506,11 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// \param cb null to clear callbacks
   /// DEPRECATED: use onMediaStatus instead
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, mdkMediaStatusChangedCallback)>>
-      onMediaStatusChanged;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, mdkMediaStatusChangedCallback)
+    >
+  >
+  onMediaStatusChanged;
 
   /// !
   /// \brief updateNativeSurface
@@ -1355,44 +1518,80 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// native surface MUST be not null before destroying player
   /// type: ignored if win ptr does not change (request to resize)
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Void>,
-              ffi.Int, ffi.Int, ffi.Int32)>> updateNativeSurface;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Void>,
+        ffi.Int,
+        ffi.Int,
+        ffi.Int32,
+      )
+    >
+  >
+  updateNativeSurface;
 
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Void>, ffi.Int32)>>
-      createSurface;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Void>,
+        ffi.Int32,
+      )
+    >
+  >
+  createSurface;
 
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int, ffi.Int)>>
-      resizeSurface;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int, ffi.Int)
+    >
+  >
+  resizeSurface;
 
-  external ffi
-      .Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>)>>
-      showSurface;
+  external ffi.Pointer<
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>)>
+  >
+  showSurface;
 
   /// !
   /// \brief getVideoFrame
   /// get current rendered frame, i.e. the decoded video frame rendered by renderVideo()
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<mdkPlayer> p,
-              ffi.Pointer<mdkVideoFrameAPI> frame,
-              ffi.Pointer<ffi.Void> vo_opaque)>> getVideoFrame;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer> p,
+        ffi.Pointer<mdkVideoFrameAPI> frame,
+        ffi.Pointer<ffi.Void> vo_opaque,
+      )
+    >
+  >
+  getVideoFrame;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int, ffi.Int,
-              ffi.Pointer<ffi.Void>)>> setVideoSurfaceSize;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Int,
+        ffi.Int,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  setVideoSurfaceSize;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Float, ffi.Float,
-              ffi.Float, ffi.Float, ffi.Pointer<ffi.Void>)>> setVideoViewport;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Float,
+        ffi.Float,
+        ffi.Float,
+        ffi.Float,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  setVideoViewport;
 
   /// !
   /// \brief setAspectRatio
@@ -1403,20 +1602,34 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// other value > 0: keep given aspect ratio and scale as large as possible inside renderer viewport
   /// other value < 0: keep given aspect ratio and scale as small as possible inside renderer viewport
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, ffi.Float, ffi.Pointer<ffi.Void>)>>
-      setAspectRatio;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Float,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  setAspectRatio;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<mdkPlayer>, ffi.Int, ffi.Pointer<ffi.Void>)>> rotate;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int, ffi.Pointer<ffi.Void>)
+    >
+  >
+  rotate;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Float, ffi.Float,
-              ffi.Pointer<ffi.Void>)>> scale;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Float,
+        ffi.Float,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  scale;
 
   /// !
   /// \brief renderVideo
@@ -1424,17 +1637,28 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// OpenGL: Can be called in multiple foreign contexts for the same vo_opaque.
   /// \return timestamp of rendered frame, or < 0 if no frame is rendered
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Double Function(
-              ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Void>)>> renderVideo;
+    ffi.NativeFunction<
+      ffi.Double Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Void>)
+    >
+  >
+  renderVideo;
 
   /// !
   /// \brief setBackgroundColor
   /// r, g, b, a range is [0, 1]. default is 0. if out of range or a == 0, background color will not be filled
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Float, ffi.Float,
-              ffi.Float, ffi.Float, ffi.Pointer<ffi.Void>)>> setBackgroundColor;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Float,
+        ffi.Float,
+        ffi.Float,
+        ffi.Float,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  setBackgroundColor;
 
   /// !
   /// \brief setRenderCallback
@@ -1443,39 +1667,62 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// with vo_opaque, user can know which vo/renderer is rendering, useful for multiple renderers
   /// There may be no frames or playback not even started, but renderer update is required internally
   external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, mdkRenderCallback)
+    >
+  >
+  setRenderCallback;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, mdkVideoCallback)
+    >
+  >
+  onVideo;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>)>
+  >
+  onAudio;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<mdkPlayer>, mdkRenderCallback)>>
-      setRenderCallback;
+            ffi.Void Function(
+              ffi.Pointer<mdkVideoFrameAPI>,
+              ffi.Pointer<ffi.Void>,
+            )
+          >
+        >,
+      )
+    >
+  >
+  beforeVideoRender;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, mdkVideoCallback)>> onVideo;
-
-  external ffi
-      .Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>)>>
-      onAudio;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<
+          ffi.NativeFunction<
+            ffi.Void Function(
+              ffi.Pointer<mdkVideoFrameAPI>,
+              ffi.Pointer<ffi.Void>,
+            )
+          >
+        >,
+      )
+    >
+  >
+  afterVideoRender;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<mdkPlayer>,
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(ffi.Pointer<mdkVideoFrameAPI>,
-                          ffi.Pointer<ffi.Void>)>>)>> beforeVideoRender;
-
-  external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<mdkPlayer>,
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(ffi.Pointer<mdkVideoFrameAPI>,
-                          ffi.Pointer<ffi.Void>)>>)>> afterVideoRender;
-
-  external ffi
-      .Pointer<ffi.NativeFunction<ffi.Int64 Function(ffi.Pointer<mdkPlayer>)>>
-      position;
+    ffi.NativeFunction<ffi.Int64 Function(ffi.Pointer<mdkPlayer>)>
+  >
+  position;
 
   /// !
   /// \brief seekWithFlags
@@ -1486,32 +1733,44 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// \param cb if succeeded, callback is called when stream seek finished and after the 1st frame decoded or decode error(e.g. video tracks disabled), ret(>=0) is the timestamp of the 1st frame(video if exists) after seek.
   /// If error(io, demux, not decode) occured(ret < 0, usually -1) or skipped because of unfinished previous seek(ret == -2), out of range(-4) or media unloaded(-3).
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<mdkPlayer>, ffi.Int64, ffi.Int32,
-              mdkSeekCallback)>> seekWithFlags;
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Int64,
+        ffi.Int32,
+        mdkSeekCallback,
+      )
+    >
+  >
+  seekWithFlags;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<mdkPlayer>, ffi.Int64, mdkSeekCallback)>> seek;
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<mdkPlayer>, ffi.Int64, mdkSeekCallback)
+    >
+  >
+  seek;
 
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Float)>>
-      setPlaybackRate;
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Float)>
+  >
+  setPlaybackRate;
 
-  external ffi
-      .Pointer<ffi.NativeFunction<ffi.Float Function(ffi.Pointer<mdkPlayer>)>>
-      playbackRate;
+  external ffi.Pointer<
+    ffi.NativeFunction<ffi.Float Function(ffi.Pointer<mdkPlayer>)>
+  >
+  playbackRate;
 
   /// !
   /// \brief buffered
   /// get buffered data(packets) duration and size
   /// \return buffered data duration
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Int64 Function(
-              ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Int64>)>> buffered;
+    ffi.NativeFunction<
+      ffi.Int64 Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Int64>)
+    >
+  >
+  buffered;
 
   /// !
   /// \brief switchBitrate
@@ -1520,9 +1779,16 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// \param cb (true/false) called when finished/failed
   /// \param flags seek flags for the next url, accurate or fast
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Char>,
-              ffi.Int64, SwitchBitrateCallback)>> switchBitrate;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Int64,
+        SwitchBitrateCallback,
+      )
+    >
+  >
+  switchBitrate;
 
   /// !
   /// \brief switchBitrateSingalConnection
@@ -1531,14 +1797,26 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// \return false if preload immediately
   /// This will not affect next media set by user
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Char>,
-              SwitchBitrateCallback)>> switchBitrateSingleConnection;
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Char>,
+        SwitchBitrateCallback,
+      )
+    >
+  >
+  switchBitrateSingleConnection;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, mdkMediaEventCallback,
-              ffi.Pointer<MDK_CallbackToken>)>> onEvent;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        mdkMediaEventCallback,
+        ffi.Pointer<MDK_CallbackToken>,
+      )
+    >
+  >
+  onEvent;
 
   /// !
   /// \brief bufferRange
@@ -1554,10 +1832,11 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// For realtime streams like(rtp, rtsp, rtmp, sdp etc.), the default range is [0, INT64_MAX, true].
   /// Usually you don't need to call this api. This api can be used for low latency live videos, for example setBufferRange(0, 1000, true) will decode as soon as possible when media data received, also it ensures the max delay of rendered video is 1s, and no accumulated delay.
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, ffi.Int64, ffi.Int64, ffi.Bool)>>
-      setBufferRange;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int64, ffi.Int64, ffi.Bool)
+    >
+  >
+  setBufferRange;
 
   /// !
   /// \brief snapshot
@@ -1565,53 +1844,81 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// When `snapshot()` is called, redraw is scheduled for `vo_opaque`'s renderer, then renderer will take a snapshot in rendering thread.
   /// So for a foreign context, if renderer's surface/window/widget is invisible or minimized, snapshot may do nothing because of system or gui toolkit painting optimization.
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<mdkPlayer>,
-              ffi.Pointer<mdkSnapshotRequest>,
-              mdkSnapshotCallback,
-              ffi.Pointer<ffi.Void>)>> snapshot;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<mdkSnapshotRequest>,
+        mdkSnapshotCallback,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  snapshot;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>> setProperty;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Char>,
+      )
+    >
+  >
+  setProperty;
 
   /// !
   /// \brief setProperty
   /// \return value for key, or null if no such key
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Char>)>> getProperty;
+    ffi.NativeFunction<
+      ffi.Pointer<ffi.Char> Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Char>,
+      )
+    >
+  >
+  getProperty;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>> record;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Char>,
+      )
+    >
+  >
+  record;
 
   /// !
   /// \brief setLoopRange
   /// DEPRECATED! use setLoop+setRange instead
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, ffi.Int, ffi.Int64, ffi.Int64)>>
-      setLoopRange;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int, ffi.Int64, ffi.Int64)
+    >
+  >
+  setLoopRange;
 
   /// !
   /// \brief setLoop
   /// Set A-B loop repeat count.
   /// \param count repeat count. 0 to disable looping and stop when out of range(B)
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int)>>
-      setLoop;
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int)>
+  >
+  setLoop;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, mdkLoopCallback,
-              ffi.Pointer<MDK_CallbackToken>)>> onLoop;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        mdkLoopCallback,
+        ffi.Pointer<MDK_CallbackToken>,
+      )
+    >
+  >
+  onLoop;
 
   /// !
   /// \brief setRange
@@ -1619,9 +1926,11 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// \param a loop position begin, in ms.
   /// \param b loop position end, in ms. -1, INT64_MAX or numeric_limit<int64_t>::max() indicates b is the end of media
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int64, ffi.Int64)>>
-      setRange;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int64, ffi.Int64)
+    >
+  >
+  setRange;
 
   /// !
   /// \brief setRenderAPI
@@ -1629,17 +1938,28 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// \param api
   /// To release gfx resources, set null api in rendering thread/context(required by vulkan)
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<mdkRenderAPI>,
-              ffi.Pointer<ffi.Void>)>> setRenderAPI;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<mdkRenderAPI>,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  setRenderAPI;
 
   /// !
   /// \brief renderApi()
   /// get render api. For offscreen rendering, may only api type be valid in setRenderAPI(), and other members are filled internally, and used by user after renderVideo()
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Pointer<mdkRenderAPI> Function(
-              ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Void>)>> renderAPI;
+    ffi.NativeFunction<
+      ffi.Pointer<mdkRenderAPI> Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  renderAPI;
 
   /// !
   /// \brief mapPoint
@@ -1647,42 +1967,68 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// \param x points to x coordinate of viewport or currently rendered video frame
   /// \param z not used
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<mdkPlayer>,
-              ffi.Int32,
-              ffi.Pointer<ffi.Float>,
-              ffi.Pointer<ffi.Float>,
-              ffi.Pointer<ffi.Float>,
-              ffi.Pointer<ffi.Void>)>> mapPoint;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Int32,
+        ffi.Pointer<ffi.Float>,
+        ffi.Pointer<ffi.Float>,
+        ffi.Pointer<ffi.Float>,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  mapPoint;
 
   /// !
   /// \brief onSync
   /// \param cb a callback invoked when about to render a frame. return expected current playback position(seconds), e.g. DBL_MAX(TimestampEOS) indicates render video frame ASAP.
   /// sync callback clock should handle pause, resume, seek and seek finish events
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<mdkPlayer>, mdkSyncCallback, ffi.Int)>> onSync;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, mdkSyncCallback, ffi.Int)
+    >
+  >
+  onSync;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int32,
-              ffi.Pointer<ffi.Float>, ffi.Pointer<ffi.Void>)>> setVideoEffect;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Int32,
+        ffi.Pointer<ffi.Float>,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  setVideoEffect;
 
   /// !
   /// \brief setActiveTracks
   /// \param type
   /// \param tracks set of active track number, from 0~N. Invalid track numbers will be ignored
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int32,
-              ffi.Pointer<ffi.Int>, ffi.Size)>> setActiveTracks;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Int32,
+        ffi.Pointer<ffi.Int>,
+        ffi.Size,
+      )
+    >
+  >
+  setActiveTracks;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Int32,
-              ffi.Pointer<ffi.Pointer<ffi.Char>>)>> setDecoders;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Int32,
+        ffi.Pointer<ffi.Pointer<ffi.Char>>,
+      )
+    >
+  >
+  setDecoders;
 
   /// !
   /// \brief setChannelVolume
@@ -1692,9 +2038,11 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// The same as ms log2(SpeakerPosition), see https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ksmedia/ns-ksmedia-ksaudio_channel_config#remarks
   /// setChannelVolume(value, -1) equals to setVolume(value)
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Float, ffi.Int)>>
-      setChannelVolume;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Float, ffi.Int)
+    >
+  >
+  setChannelVolume;
 
   /// !
   /// \brief setFrameRate
@@ -1704,33 +2052,48 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// - <0: render ASAP.
   /// - >0: target frame rate
   external ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Float)>>
-      setFrameRate;
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Float)>
+  >
+  setFrameRate;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<mdkPlayer>,
-              ffi.Pointer<ffi.Float>,
-              ffi.Pointer<ffi.Float>,
-              ffi.Int,
-              ffi.Pointer<ffi.Void>)>> setPointMap;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Float>,
+        ffi.Pointer<ffi.Float>,
+        ffi.Int,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  setPointMap;
 
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<mdkPlayer>, ffi.Int32, ffi.Pointer<ffi.Void>)>>
-      setColorSpace;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Int32,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  setColorSpace;
 
   /// !
   /// \brief onMediaStatus
   /// Add or remove a callback to be invoked when MediaStatus is changed
   /// \param cb null to clear callbacks
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, mdkMediaStatusCallback,
-              ffi.Pointer<MDK_CallbackToken>)>> onMediaStatus;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        mdkMediaStatusCallback,
+        ffi.Pointer<MDK_CallbackToken>,
+      )
+    >
+  >
+  onMediaStatus;
 
   /// !
   /// \brief size
@@ -1740,11 +2103,15 @@ final class mdkPlayerAPI extends ffi.Struct {
   external UnnamedUnion2 unnamed;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<mdkPlayer>,
-              ffi.Pointer<mdkVideoFrameAPI>,
-              ffi.Pointer<ffi.Void>)>> enqueueVideo;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<mdkVideoFrameAPI>,
+        ffi.Pointer<ffi.Void>,
+      )
+    >
+  >
+  enqueueVideo;
 
   /// !
   /// \brief bufferedTimeRanges
@@ -1754,26 +2121,42 @@ final class mdkPlayerAPI extends ffi.Struct {
   /// \param count number of ranges can be filled in array
   /// \return total ranges count. If it's > count in array t, only count ranges will be filled
   external ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Int Function(
-                  ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Int64>, ffi.Int)>>
-      bufferedTimeRanges;
+    ffi.NativeFunction<
+      ffi.Int Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Int64>, ffi.Int)
+    >
+  >
+  bufferedTimeRanges;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<mdkPlayer>, ffi.Pointer<ffi.Uint8>,
-              ffi.Size, ffi.Int)>> appendBuffer;
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Pointer<ffi.Uint8>,
+        ffi.Size,
+        ffi.Int,
+      )
+    >
+  >
+  appendBuffer;
 
   external ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<mdkPlayer>, ffi.Double, ffi.Int,
-              mdkSubtitleCallback)>> subtitleText;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<mdkPlayer>,
+        ffi.Double,
+        ffi.Int,
+        mdkSubtitleCallback,
+      )
+    >
+  >
+  subtitleText;
 }
 
 final class SwitchBitrateCallback extends ffi.Struct {
   external ffi.Pointer<
-      ffi
-      .NativeFunction<ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>> cb;
+    ffi.NativeFunction<ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>
+  >
+  cb;
 
   external ffi.Pointer<ffi.Void> opaque;
 }

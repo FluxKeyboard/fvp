@@ -82,8 +82,7 @@ enum PlaybackState {
   stopped(MDK_State.MDK_State_Stopped),
   running(MDK_State.MDK_State_Running),
   playing(MDK_State.MDK_State_Playing),
-  paused(MDK_State.MDK_State_Paused),
-  ;
+  paused(MDK_State.MDK_State_Paused);
 
   final int rawValue;
   const PlaybackState(this.rawValue);
@@ -136,8 +135,7 @@ enum VideoEffect {
   brightness(MDK_VideoEffect.MDK_VideoEffect_Brightness),
   contrast(MDK_VideoEffect.MDK_VideoEffect_Contrast),
   hue(MDK_VideoEffect.MDK_VideoEffect_Hue),
-  saturation(MDK_VideoEffect.MDK_VideoEffect_Saturation),
-  ;
+  saturation(MDK_VideoEffect.MDK_VideoEffect_Saturation);
 
   final int rawValue;
   const VideoEffect(this.rawValue);
@@ -149,8 +147,7 @@ enum ColorSpace {
   bt709(MDK_ColorSpace.MDK_ColorSpace_BT709),
   bt2100PQ(MDK_ColorSpace.MDK_ColorSpace_BT2100_PQ),
   scrgb(MDK_ColorSpace.MDK_ColorSpace_scRGB),
-  bt2100hlg(MDK_ColorSpace.MDK_ColorSpace_BT2100_HLG),
-  ;
+  bt2100hlg(MDK_ColorSpace.MDK_ColorSpace_BT2100_HLG);
 
   final int rawValue;
   const ColorSpace(this.rawValue);
@@ -179,8 +176,7 @@ enum LogLevel {
   warning(MDK_LogLevel.MDK_LogLevel_Warning),
   info(MDK_LogLevel.MDK_LogLevel_Info),
   debug(MDK_LogLevel.MDK_LogLevel_Debug),
-  all(MDK_LogLevel.MDK_LogLevel_All),
-  ;
+  all(MDK_LogLevel.MDK_LogLevel_All);
 
   final int rawValue;
   const LogLevel(this.rawValue);
@@ -281,7 +277,10 @@ class _GlobalCallbacks {
       }
     });
     Libfvp.registerPort(
-        0, NativeApi.postCObject.cast(), _receivePort.sendPort.nativePort);
+      0,
+      NativeApi.postCObject.cast(),
+      _receivePort.sendPort.nativePort,
+    );
   }
 
   void setLogHandler(void Function(LogLevel, String)? cb) {

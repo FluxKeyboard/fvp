@@ -36,17 +36,37 @@ extension PlatformEx on Platform {
     final key = asset;
     switch (Platform.operatingSystem) {
       case 'windows':
-        return path.join(path.dirname(Platform.resolvedExecutable), 'data',
-            'flutter_assets', key);
+        return path.join(
+          path.dirname(Platform.resolvedExecutable),
+          'data',
+          'flutter_assets',
+          key,
+        );
       case 'linux':
-        return path.join(path.dirname(Platform.resolvedExecutable), 'data',
-            'flutter_assets', key);
+        return path.join(
+          path.dirname(Platform.resolvedExecutable),
+          'data',
+          'flutter_assets',
+          key,
+        );
       case 'macos':
-        return path.join(path.dirname(Platform.resolvedExecutable), '..',
-            'Frameworks', 'App.framework', 'Resources', 'flutter_assets', key);
+        return path.join(
+          path.dirname(Platform.resolvedExecutable),
+          '..',
+          'Frameworks',
+          'App.framework',
+          'Resources',
+          'flutter_assets',
+          key,
+        );
       case 'ios':
-        return path.join(path.dirname(Platform.resolvedExecutable),
-            'Frameworks', 'App.framework', 'flutter_assets', key);
+        return path.join(
+          path.dirname(Platform.resolvedExecutable),
+          'Frameworks',
+          'App.framework',
+          'flutter_assets',
+          key,
+        );
       case 'android':
         return 'assets://flutter_assets/$key';
     }
@@ -56,7 +76,7 @@ extension PlatformEx on Platform {
 
 extension NullTerminatedU8PtrArray on Pointer<Pointer<Utf8>> {
   void free() {
-    for (int i = 0;; ++i) {
+    for (int i = 0; ; ++i) {
       final p = this[i];
       if (p == nullptr) {
         break;

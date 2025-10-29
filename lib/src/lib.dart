@@ -57,31 +57,41 @@ abstract class Libfvp {
 
   static final instance = _load();
   static final registerPort = instance.lookupFunction<
-      Void Function(Int64, Pointer<Void>, Int64),
-      void Function(int, Pointer<Void>, int)>('MdkCallbacksRegisterPort');
-  static final unregisterPort =
-      instance.lookupFunction<Void Function(Int64), void Function(int)>(
-          'MdkCallbacksUnregisterPort');
+    Void Function(Int64, Pointer<Void>, Int64),
+    void Function(int, Pointer<Void>, int)
+  >('MdkCallbacksRegisterPort');
+  static final unregisterPort = instance
+      .lookupFunction<Void Function(Int64), void Function(int)>(
+        'MdkCallbacksUnregisterPort',
+      );
   static final registerType = instance.lookupFunction<
-      Void Function(Int64, Int, Bool),
-      void Function(int, int, bool)>('MdkCallbacksRegisterType');
-  static final unregisterType = instance.lookupFunction<
-      Void Function(Int64, Int),
-      void Function(int, int)>('MdkCallbacksUnregisterType');
+    Void Function(Int64, Int, Bool),
+    void Function(int, int, bool)
+  >('MdkCallbacksRegisterType');
+  static final unregisterType = instance
+      .lookupFunction<Void Function(Int64, Int), void Function(int, int)>(
+        'MdkCallbacksUnregisterType',
+      );
   static final replyType = instance.lookupFunction<
-      Void Function(Int64, Int, Pointer<Void>),
-      void Function(int, int, Pointer<Void>)>('MdkCallbacksReplyType');
+    Void Function(Int64, Int, Pointer<Void>),
+    void Function(int, int, Pointer<Void>)
+  >('MdkCallbacksReplyType');
   static final prepare = instance.lookupFunction<
-      Bool Function(Int64, Int64, Int64, Pointer<Void>, Int64),
-      bool Function(int, int, int, Pointer<Void>, int)>('MdkPrepare');
+    Bool Function(Int64, Int64, Int64, Pointer<Void>, Int64),
+    bool Function(int, int, int, Pointer<Void>, int)
+  >('MdkPrepare');
   static final seek = instance.lookupFunction<
-      Bool Function(Int64, Int64, Int64, Pointer<Void>, Int64),
-      bool Function(int, int, int, Pointer<Void>, int)>('MdkSeek');
+    Bool Function(Int64, Int64, Int64, Pointer<Void>, Int64),
+    bool Function(int, int, int, Pointer<Void>, int)
+  >('MdkSeek');
   static final snapshot = instance.lookupFunction<
-      Bool Function(Int64, Int64, Int, Int, Pointer<Void>, Int64),
-      bool Function(int, int, int, int, Pointer<Void>, int)>('MdkSnapshot');
+    Bool Function(Int64, Int64, Int, Int, Pointer<Void>, Int64),
+    bool Function(int, int, int, int, Pointer<Void>, int)
+  >('MdkSnapshot');
   static final isEmulator = instance
       .lookupFunction<Bool Function(), bool Function()>('MdkIsEmulator');
-  static final getVid = instance.lookupFunction<Pointer<Void> Function(Int64),
-      Pointer<Void> Function(int)>('MdkGetPlayerVid');
+  static final getVid = instance.lookupFunction<
+    Pointer<Void> Function(Int64),
+    Pointer<Void> Function(int)
+  >('MdkGetPlayerVid');
 }

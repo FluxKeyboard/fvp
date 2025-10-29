@@ -29,8 +29,12 @@ class MdkVideoPlayerPlatform {
 
   void setRange(int textureId, {required int from, int to = -1}) {}
 
-  void setBufferRange(int textureId,
-      {int min = -1, int max = -1, bool drop = false}) {}
+  void setBufferRange(
+    int textureId, {
+    int min = -1,
+    int max = -1,
+    bool drop = false,
+  }) {}
 
   Future<void> fastSeekTo(int textureId, Duration position) async {}
 
