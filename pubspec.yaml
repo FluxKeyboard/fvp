@@ -10,8 +10,10 @@ topics:
   - elinux
 
 environment:
-  sdk: ^3.0.0
+  sdk: ^3.7.0
   flutter: ">=3.0.0"
+
+resolution: workspace
 
 dependencies:
   ffi: ^2.1.0
@@ -29,7 +31,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: any
-  ffigen: ^9.0.0
+  ffigen: ^19.0.0
   lints: any
 
 # For information on the generic Dart part of this file, see the
