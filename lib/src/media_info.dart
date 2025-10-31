@@ -87,8 +87,7 @@ class AudioStreamInfo extends StreamInfo {
     var entry = calloc<mdkStringMapEntry>();
     while (Libmdk.instance.MDK_AudioStreamMetadata(pcsi, entry)) {
       try {
-        metadata[entry.ref.key.cast<Utf8>().toDartString()] =
-            entry.ref.value.cast<Utf8>().toDartString();
+        metadata[entry.ref.key.cast<Utf8>().toDartString()] = entry.ref.value.cast<Utf8>().toDartString();
         // ignore: empty_catches
       } catch (e) {}
     }
@@ -172,8 +171,7 @@ class VideoStreamInfo extends StreamInfo {
     var entry = calloc<mdkStringMapEntry>();
     while (Libmdk.instance.MDK_VideoStreamMetadata(pcsi, entry)) {
       try {
-        metadata[entry.ref.key.cast<Utf8>().toDartString()] =
-            entry.ref.value.cast<Utf8>().toDartString();
+        metadata[entry.ref.key.cast<Utf8>().toDartString()] = entry.ref.value.cast<Utf8>().toDartString();
         // ignore: empty_catches
       } catch (e) {}
     }
@@ -225,8 +223,7 @@ class SubtitleStreamInfo extends StreamInfo {
     var entry = calloc<mdkStringMapEntry>();
     while (Libmdk.instance.MDK_SubtitleStreamMetadata(pcsi, entry)) {
       try {
-        metadata[entry.ref.key.cast<Utf8>().toDartString()] =
-            entry.ref.value.cast<Utf8>().toDartString();
+        metadata[entry.ref.key.cast<Utf8>().toDartString()] = entry.ref.value.cast<Utf8>().toDartString();
         // ignore: empty_catches
       } catch (e) {}
     }
@@ -279,8 +276,7 @@ class ProgramInfo {
     var entry = calloc<mdkStringMapEntry>();
     while (Libmdk.instance.MDK_ProgramMetadata(ppi, entry)) {
       try {
-        metadata[entry.ref.key.cast<Utf8>().toDartString()] =
-            entry.ref.value.cast<Utf8>().toDartString();
+        metadata[entry.ref.key.cast<Utf8>().toDartString()] = entry.ref.value.cast<Utf8>().toDartString();
         // ignore: empty_catches
       } catch (e) {}
     }
@@ -341,8 +337,7 @@ class MediaInfo {
     var entry = calloc<mdkStringMapEntry>();
     while (Libmdk.instance.MDK_MediaMetadata(pci, entry)) {
       try {
-        metadata[entry.ref.key.cast<Utf8>().toDartString()] =
-            entry.ref.value.cast<Utf8>().toDartString();
+        metadata[entry.ref.key.cast<Utf8>().toDartString()] = entry.ref.value.cast<Utf8>().toDartString();
         // ignore: empty_catches
       } catch (e) {}
     }

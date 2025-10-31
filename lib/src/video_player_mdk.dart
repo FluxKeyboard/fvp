@@ -37,8 +37,7 @@ class MdkVideoPlayer extends mdk.Player {
       _log.fine(
         '$hashCode player$nativeHandle onMediaStatus: $oldValue => $newValue',
       );
-      if (!oldValue.test(mdk.MediaStatus.loaded) &&
-          newValue.test(mdk.MediaStatus.loaded)) {
+      if (!oldValue.test(mdk.MediaStatus.loaded) && newValue.test(mdk.MediaStatus.loaded)) {
         // initialized event must be sent only once. keep_open=1 is another solution
         //if ((textureId.value ?? -1) >= 0) {
         //  return true; // prepared callback is invoked before MediaStatus.loaded, so textureId can be a valid value here
@@ -56,21 +55,18 @@ class MdkVideoPlayer extends mdk.Player {
             VideoEvent(
               eventType: VideoEventType.initialized,
               duration: Duration(
-                microseconds:
-                    isLive
-                        // int max for live streams, duration.inMicroseconds == 9223372036854775807
-                        ? double.maxFinite.toInt()
-                        : mediaInfo.duration * 1000,
+                microseconds: isLive
+                    // int max for live streams, duration.inMicroseconds == 9223372036854775807
+                    ? double.maxFinite.toInt()
+                    : mediaInfo.duration * 1000,
               ),
               size: size,
             ),
           );
         });
-      } else if (!oldValue.test(mdk.MediaStatus.buffering) &&
-          newValue.test(mdk.MediaStatus.buffering)) {
+      } else if (!oldValue.test(mdk.MediaStatus.buffering) && newValue.test(mdk.MediaStatus.buffering)) {
         streamCtl.add(VideoEvent(eventType: VideoEventType.bufferingStart));
-      } else if (!oldValue.test(mdk.MediaStatus.buffered) &&
-          newValue.test(mdk.MediaStatus.buffered)) {
+      } else if (!oldValue.test(mdk.MediaStatus.buffered) && newValue.test(mdk.MediaStatus.buffered)) {
         streamCtl.add(VideoEvent(eventType: VideoEventType.bufferingEnd));
       }
       return true;
@@ -145,8 +141,7 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
       final platforms = options['platforms'];
       if (platforms is List<String>) {
         if (!platforms.contains(Platform.operatingSystem)) {
-          if (_prevImpl != null &&
-              VideoPlayerPlatform.instance is MdkVideoPlayerPlatform) {
+          if (_prevImpl != null && VideoPlayerPlatform.instance is MdkVideoPlayerPlatform) {
             // null if it's the 1st time to call registerWith() including current platform
             // if current is not MdkVideoPlayerPlatform, another plugin may set instance
             // if current is MdkVideoPlayerPlatform, we have to restore instance,  _prevImpl is correct and no one changed instance
@@ -175,12 +170,9 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
       // prefer hardware decoders
       const vdRk = ['rockchip', 'rkmpp', 'FFmpeg', 'dav1d'];
       const vdPi = ['V4L2M2M', 'FFmpeg:hwcontext=drm', 'FFmpeg', 'dav1d'];
-      final vdLinux =
-          PlatformEx.isRockchip()
-              ? vdRk
-              : (PlatformEx.isRaspberryPi()
-                  ? vdPi
-                  : ['VAAPI', 'CUDA', 'VDPAU', 'hap', 'FFmpeg', 'dav1d']);
+      final vdLinux = PlatformEx.isRockchip()
+          ? vdRk
+          : (PlatformEx.isRaspberryPi() ? vdPi : ['VAAPI', 'CUDA', 'VDPAU', 'hap', 'FFmpeg', 'dav1d']);
       final vd = {
         'windows': [
           'MFT:d3d=11',
@@ -401,8 +393,7 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
     player.streamCtl.add(
       VideoEvent(
         eventType: VideoEventType.bufferingUpdate,
-        buffered:
-            ranges +
+        buffered: ranges +
             [
               DurationRange(
                 Duration(milliseconds: pos),
@@ -569,8 +560,7 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
     if (player.isLive) {
       final bufMax = player.buffered();
       final pos = player.position;
-      if (position.inMilliseconds <= pos ||
-          position.inMilliseconds > pos + bufMax) {
+      if (position.inMilliseconds <= pos || position.inMilliseconds > pos + bufMax) {
         _log.fine(
           '_seekToWithFlags: $position out of live stream buffered range [$pos, ${pos + bufMax}]',
         );

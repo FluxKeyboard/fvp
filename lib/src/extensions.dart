@@ -76,7 +76,7 @@ extension PlatformEx on Platform {
 
 extension NullTerminatedU8PtrArray on Pointer<Pointer<Utf8>> {
   void free() {
-    for (int i = 0; ; ++i) {
+    for (int i = 0;; ++i) {
       final p = this[i];
       if (p == nullptr) {
         break;
