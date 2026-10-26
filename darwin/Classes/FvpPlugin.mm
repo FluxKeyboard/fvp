@@ -138,10 +138,16 @@ private:
 #if TARGET_OS_OSX
 #else
   [registrar addApplicationDelegate:instance];
+#if __has_include(<Flutter/FlutterSceneLifeCycle.h>)
+  // With UIScene, the engine is destroyed on scene disconnect, before applicationWillTerminate
+  if (@available(iOS 13.0, *)) {
+    if ([registrar respondsToSelector:@selector(addSceneDelegate:)])
+      [registrar addSceneDelegate:(NSObject<FlutterSceneLifeCycleDelegate>*)instance];
+  }
+#endif
 #endif
     [registrar publish:instance];
     [registrar addMethodCallDelegate:instance channel:channel];
-    SetGlobalOption("MDK_KEY", "C03BFF5306AB39058A767105F82697F42A00FE970FB0E641D306DEFF3F220547E5E5377A3C504DC30D547890E71059BC023A4DD91A95474D1F33CA4C26C81B0FC73B00ACF954C6FA75898EFA07D9680B6A00FDF179C0A15381101D01124498AF55B069BD4B0156D5CF5A56DEDE782E5F3930AD47C8F40BFBA379231142E31B0F");
 }
 
 - (instancetype)initWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -191,6 +197,10 @@ private:
 #if TARGET_OS_OSX
 #else
 - (void)applicationWillTerminate:(UIApplication *)application {
+  players.clear();
+}
+
+- (void)sceneDidDisconnect:(UIScene*)scene API_AVAILABLE(ios(13.0)) {
   players.clear();
 }
 #endif

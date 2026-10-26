@@ -1,55 +1,73 @@
-// Copyright 2022-2025 Wang Bin. All rights reserved.
+// Copyright 2022-2026 Wang Bin. All rights reserved.
+// AI participated
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart' show PlatformViewHitTestBehavior;
 import 'package:flutter/widgets.dart'; //
 import 'package:flutter/services.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:logging/logging.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:ffi/ffi.dart';
 import 'fvp_platform_interface.dart';
+import 'create_cancellation.dart';
 import 'extensions.dart';
+import 'lib.dart';
 import 'media_info.dart';
 
 import '../mdk.dart' as mdk;
 
 final _log = Logger('fvp');
 
+// Default MDK_KEY bundled with this plugin. Users can override it by passing
+// {'global': {'MDK_KEY': '<key>'}} to registerWith().
+const _kDefaultMdkKey =
+    '4DF316BC71206BCEECD01559CC0FEDAF32DF8ECAE656BD9999CB821B67DB5B33'
+    '2B323F24539BA7172746B8F5A64CA67AF342B16BF4B418F76718B821F77BEA07'
+    '22F71DBC8EDF9431132FEAA633F0125072DF8DAC90268C62D0E4BA7D6DF9A6C4'
+    '976AB1146EC55FFD1945CAB4125B20D5C77976CF1BCB77B14C563868EA00EA07';
+
 class MdkVideoPlayer extends mdk.Player {
   final streamCtl = StreamController<VideoEvent>();
   bool _initialized = false;
 
   @override
-  void dispose() {
-    onMediaStatus(null);
-    onEvent(null);
-    onStateChanged(null);
-    streamCtl.close();
+  void dispose() => unawaited(disposeAsync());
+
+  @override
+  Future<void> disposeAsync() async {
+    if (!streamCtl.isClosed) streamCtl.close();
     _initialized = false;
-    super.dispose();
+    await super.disposeAsync();
   }
 
   MdkVideoPlayer() : super() {
-    onMediaStatus((oldValue, newValue) {
+    onMediaStatus.listen((event) {
+      if (streamCtl.isClosed) return;
+      final oldValue = event.oldValue;
+      final newValue = event.newValue;
       _log.fine(
         '$hashCode player$nativeHandle onMediaStatus: $oldValue => $newValue',
       );
       if (!oldValue.test(mdk.MediaStatus.loaded) &&
           newValue.test(mdk.MediaStatus.loaded)) {
         // initialized event must be sent only once. keep_open=1 is another solution
-        //if ((textureId.value ?? -1) >= 0) {
-        //  return true; // prepared callback is invoked before MediaStatus.loaded, so textureId can be a valid value here
+        //if ((playerId.value ?? -1) >= 0) {
+        //  return true; // prepared callback is invoked before MediaStatus.loaded, so playerId can be a valid value here
         //}
         if (_initialized) {
           _log.fine('$hashCode player$nativeHandle already initialized');
-          return true;
+          return;
         }
         _initialized = true;
         textureSize.then((size) {
-          if (size == null) {
+          if (size == null || streamCtl.isClosed) {
             return;
           }
           streamCtl.add(
@@ -73,10 +91,10 @@ class MdkVideoPlayer extends mdk.Player {
           newValue.test(mdk.MediaStatus.buffered)) {
         streamCtl.add(VideoEvent(eventType: VideoEventType.bufferingEnd));
       }
-      return true;
     });
 
-    onEvent((ev) {
+    onEvent.listen((ev) {
+      if (streamCtl.isClosed) return;
       _log.fine(
         '$hashCode player$nativeHandle onEvent: ${ev.category} - ${ev.detail} - ${ev.error}',
       );
@@ -97,27 +115,27 @@ class MdkVideoPlayer extends mdk.Player {
       }
     });
 
-    onStateChanged((oldValue, newValue) {
+    onStateChanged.listen((event) {
+      if (streamCtl.isClosed) return;
       _log.fine(
-        '$hashCode player$nativeHandle onPlaybackStateChanged: $oldValue => $newValue',
-      );
-      if (newValue == mdk.PlaybackState.stopped) {
-        // Note: With keep_open enabled, stopped state may not occur
+          '$hashCode player$nativeHandle onPlaybackStateChanged: ${event.oldValue} => ${event.newValue}');
+      if (event.newValue == mdk.PlaybackState.stopped) {
+        // FIXME: keep_open no stopped
         streamCtl.add(VideoEvent(eventType: VideoEventType.completed));
         return;
       }
       streamCtl.add(
         VideoEvent(
           eventType: VideoEventType.isPlayingStateUpdate,
-          isPlaying: newValue == mdk.PlaybackState.playing,
-        ),
-      );
+          isPlaying: event.newValue == mdk.PlaybackState.playing));
     });
   }
 }
 
 class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
   static final _players = <int, MdkVideoPlayer>{};
+  static final _failedEvents = <int, Stream<VideoEvent>>{};
+  static int _nextFailureId = -0x100000000;
   static Map<String, Object>? _globalOpts;
   static Map<String, String>? _playerOpts;
   static int? _maxWidth;
@@ -195,6 +213,7 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
         'ios': ['VT', 'FFmpeg', 'dav1d'],
         'linux': vdLinux,
         'android': ['AMediaCodec', 'FFmpeg', 'dav1d'],
+        'ohos': ['OH', 'FFmpeg', 'dav1d'],
       };
       _decoders = vd[Platform.operatingSystem];
     }
@@ -258,8 +277,13 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
       );
     }
     _globalOpts?.forEach((key, value) {
+      if (key == 'MDK_KEY') return; // handled separately below
       mdk.setGlobalOption(key, value);
     });
+    final mdkKey = _globalOpts?['MDK_KEY'] as String? ?? _kDefaultMdkKey;
+    final k = mdkKey.toNativeUtf8();
+    Libfvp.setKey(k.cast());
+    malloc.free(k);
   }
 
   @override
@@ -267,11 +291,74 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
 
   @override
   Future<void> dispose(int playerId) async {
-    _players.remove(playerId)?.dispose();
+    final player = _players.remove(playerId);
+    try {
+      await player?.disposeAsync();
+    } catch (_) {
+      if (player != null) _players[playerId] = player;
+      rethrow;
+    }
+    _platformViewParams.remove(playerId);
+    _failedEvents.remove(playerId);
+  }
+
+  /// Creation parameters for players rendering into a platform view
+  /// (SurfaceView on Android), keyed by playerId. Absent for texture players.
+  final _platformViewParams = <int, Map<String, Object>>{};
+
+  @override
+  Future<int?> createWithOptions(VideoCreationOptions options) {
+    // SurfaceView output is Android-only; other platforms keep the texture.
+    return _create(options.dataSource,
+        Platform.isAndroid ? options.viewType : VideoViewType.textureView);
   }
 
   @override
-  Future<int?> create(DataSource dataSource) async {
+  Future<int?> create(DataSource dataSource) =>
+      _create(dataSource, VideoViewType.textureView);
+
+  Future<({bool cancelled, T? value})> _untilCancelled<T>(
+      Future<T> operation, FvpCreateCancellation? cancellation) async {
+    if (cancellation == null) {
+      return (cancelled: false, value: await operation);
+    }
+    return Future.any<({bool cancelled, T? value})>([
+      operation.then((value) => (cancelled: false, value: value)),
+      cancellation.whenCancelled.then((_) => (cancelled: true, value: null)),
+    ]);
+  }
+
+  int _failedCreate(PlatformException error,
+      {MdkVideoPlayer? player, StackTrace? stackTrace}) {
+    // video_player requires a non-null message in its event error listener.
+    if (error.message == null) {
+      error = PlatformException(
+          code: error.code,
+          message: error.code,
+          details: error.details,
+          stacktrace: error.stacktrace);
+    }
+    final id = _nextFailureId--;
+    if (player != null) _players[id] = player;
+    _failedEvents[id] = Stream<VideoEvent>.error(error, stackTrace);
+    return id;
+  }
+
+  Future<int> _finishCancelledCreate(MdkVideoPlayer player) async {
+    // Finish native teardown before returning the failed ID. If texture release
+    // fails, keep the player so the controller can retry through dispose().
+    try {
+      await player.disposeAsync();
+    } on PlatformException catch (error, stackTrace) {
+      // Keep the player for dispose() to retry instead of rejecting creation:
+      // video_player waits for a player ID before it can dispose its controller.
+      return _failedCreate(error, player: player, stackTrace: stackTrace);
+    }
+    return _failedCreate(FvpCreateCancelledException());
+  }
+
+  Future<int?> _create(DataSource dataSource, VideoViewType viewType) async {
+    final cancellation = currentFvpCreateCancellation;
     final uri = _toUri(dataSource);
     final player = MdkVideoPlayer();
     _log.fine('$hashCode player${player.nativeHandle} create($uri)');
@@ -319,7 +406,14 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
       player.setProperty('avio.headers', headers);
     }
     player.media = uri;
-    int ret = await player.prepare(); // required!
+    if (cancellation?.isCancelled ?? false) {
+      return _finishCancelledCreate(player);
+    }
+    final preparation = await _untilCancelled(player.prepare(), cancellation);
+    if (preparation.cancelled || (cancellation?.isCancelled ?? false)) {
+      return _finishCancelledCreate(player);
+    }
+    final ret = preparation.value!;
     if (ret < 0) {
       // no throw, handle error in controller.addListener
       _players[-hashCode] = player;
@@ -332,14 +426,94 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
       //player.dispose(); // dispose for throw
       return -hashCode;
     }
-    // Note: Pending events will be processed after texture is returned, but no events occur before prepared
-    // Note: Tunnel configuration is applied during texture creation
-    final tex = await player.updateTexture(
-      width: _maxWidth,
-      height: _maxHeight,
-      tunnel: _tunnel,
-      fit: _fitMaxSize,
-    );
+    // Waiting for video geometry can also outlive a cancelled network load.
+    final videoGeometry =
+        await _untilCancelled(player.textureSize, cancellation);
+    if (videoGeometry.cancelled || (cancellation?.isCancelled ?? false)) {
+      return _finishCancelledCreate(player);
+    }
+    final videoSize = videoGeometry.value;
+    if (viewType == VideoViewType.platformView) {
+      // SurfaceView output (Android): no Flutter texture. The surface is
+      // created by the FvpVideoView platform view and attached to the player
+      // natively; buffers are sized to the video so TVs with an upscaled UI
+      // layer (e.g. 1080p UI on a 4K panel) still scan out at full video
+      // resolution. playerId is the native handle instead of a texture id.
+      final size = videoSize;
+      if (size == null || size.width <= 0 || size.height <= 0) {
+        _players[-hashCode] = player;
+        player.streamCtl.addError(PlatformException(
+          code: 'video size error',
+          message: 'invalid or unsupported media with invalid video size',
+        ));
+        return -hashCode;
+      }
+      final id = player.nativeHandle;
+      // Clamp the GL render target as the texture path does — full 4K RGBA can
+      // push SurfaceFlinger into GPU composition on weak GPUs. "tunnel" has no
+      // GL renderer, so the decoder's own geometry stands.
+      var w = size.width.toInt();
+      var h = size.height.toInt();
+      if (_tunnel ?? false) {
+        // native size, no clamp
+      } else if (_maxWidth != null &&
+          _maxHeight != null &&
+          (_fitMaxSize ?? true)) {
+        final r = w / h;
+        final fitW = (_maxHeight! * r).toInt();
+        if (fitW <= _maxWidth!) {
+          if (fitW < w) {
+            w = fitW;
+            h = _maxHeight!;
+          }
+        } else if (_maxWidth! < w) {
+          h = (_maxWidth! / r).toInt();
+          w = _maxWidth!;
+        }
+      } else {
+        if (_maxWidth != null && _maxWidth! < w) {
+          h = (h * _maxWidth! / w).round();
+          w = _maxWidth!;
+        }
+        if (_maxHeight != null && _maxHeight! < h) {
+          w = (w * _maxHeight! / h).round();
+          h = _maxHeight!;
+        }
+      }
+      _platformViewParams[id] = <String, Object>{
+        'player': player.nativeHandle,
+        'width': w,
+        'height': h,
+        'tunnel': _tunnel ?? false,
+      };
+      _log.fine('$hashCode player${player.nativeHandle} platform view, '
+          'video ${size.width.toInt()}x${size.height.toInt()}');
+      _players[id] = player;
+      return id;
+    }
+// FIXME: pending events will be processed after texture returned, but no events before prepared
+// FIXME: set tunnel too late
+    int tex;
+    // Finish texture allocation before disposal so its result can be released
+    // before the native player is deleted.
+    try {
+      tex = await player.updateTexture(
+          width: _maxWidth,
+          height: _maxHeight,
+          tunnel: _tunnel,
+          fit: _fitMaxSize);
+    } catch (error, stackTrace) {
+      if (cancellation?.isCancelled ?? false) {
+        return _finishCancelledCreate(player);
+      }
+      if (error is PlatformException) {
+        return _failedCreate(error, player: player, stackTrace: stackTrace);
+      }
+      rethrow;
+    }
+    if (cancellation?.isCancelled ?? false) {
+      return _finishCancelledCreate(player);
+    }
     if (tex < 0) {
       _players[-hashCode] = player;
       player.streamCtl.addError(
@@ -351,7 +525,7 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
       //player.dispose();
       return -hashCode;
     }
-    _log.fine('$hashCode player${player.nativeHandle} textureId=$tex');
+    _log.fine('$hashCode player${player.nativeHandle} textureId/playerId=$tex');
     _players[tex] = player;
     return tex;
   }
@@ -359,9 +533,8 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
   @override
   Future<void> setLooping(int playerId, bool looping) async {
     final player = _players[playerId];
-    if (player != null) {
-      player.loop = looping ? -1 : 0;
-    }
+    if (player == null) return;
+    player.loop = looping ? -1 : 0;
   }
 
   @override
@@ -416,11 +589,15 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
 
   @override
   Stream<VideoEvent> videoEventsFor(int playerId) {
+    final failedEvents = _failedEvents[playerId];
+    if (failedEvents != null) {
+      return failedEvents;
+    }
     final player = _players[playerId];
     if (player != null) {
       return player.streamCtl.stream;
     }
-    throw Exception('No Stream<VideoEvent> for textureId: $playerId.');
+    throw Exception('No Stream<VideoEvent> for textureId/playerId: $playerId.');
   }
 
   @override
@@ -429,143 +606,173 @@ class MdkVideoPlayerPlatform extends VideoPlayerPlatform {
   }
 
   @override
+  Widget buildViewWithOptions(VideoViewOptions options) {
+    final playerId = options.playerId;
+    final creationParams = _platformViewParams[playerId];
+    if (creationParams == null) {
+      // Texture player (default).
+      return buildView(playerId);
+    }
+    // SurfaceView requires hybrid composition (initExpensiveAndroidView):
+    // under Flutter's default TLHC mode a SurfaceView draws at the wrong
+    // location/z-index (see Flutter's Android platform views docs).
+    // Builder: Directionality is only readable from a context below this.
+    return Builder(builder: (context) {
+      final layoutDirection =
+          Directionality.maybeOf(context) ?? TextDirection.ltr;
+      return PlatformViewLink(
+        viewType: 'fvp/video-view',
+        surfaceFactory: (context, controller) {
+          return AndroidViewSurface(
+            controller: controller as AndroidViewController,
+            gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+            hitTestBehavior: PlatformViewHitTestBehavior.transparent,
+          );
+        },
+        onCreatePlatformView: (params) {
+          final controller = PlatformViewsService.initExpensiveAndroidView(
+            id: params.id,
+            viewType: 'fvp/video-view',
+            // The direction Flutter resolved for this view's context — a
+            // hard-coded ltr lays the view out wrongly in an RTL app.
+            layoutDirection: layoutDirection,
+            creationParams: creationParams,
+            creationParamsCodec: const StandardMessageCodec(),
+          );
+          controller
+              .addOnPlatformViewCreatedListener(params.onPlatformViewCreated);
+          controller.create();
+          return controller;
+        },
+      );
+    });
+  }
+
+  @override
   Future<void> setMixWithOthers(bool mixWithOthers) async {
     FvpPlatform.instance.setMixWithOthers(mixWithOthers);
   }
 
   // more apis for fvp controller
-  bool isLive(int textureId) {
-    return _players[textureId]?.isLive ?? false;
+  bool isLive(int playerId) {
+    return _players[playerId]?.isLive ?? false;
   }
 
-  MediaInfo? getMediaInfo(int textureId) {
-    return _players[textureId]?.mediaInfo;
+  MediaInfo? getMediaInfo(int playerId) {
+    return _players[playerId]?.mediaInfo;
   }
 
-  void setProperty(int textureId, String name, String value) {
-    _players[textureId]?.setProperty(name, value);
+  void setProperty(int playerId, String name, String value) {
+    _players[playerId]?.setProperty(name, value);
   }
 
-  void setAudioDecoders(int textureId, List<String> value) {
-    _players[textureId]?.audioDecoders = value;
+  void setAudioDecoders(int playerId, List<String> value) {
+    _players[playerId]?.audioDecoders = value;
   }
 
-  void setVideoDecoders(int textureId, List<String> value) {
-    _players[textureId]?.videoDecoders = value;
+  void setVideoDecoders(int playerId, List<String> value) {
+    _players[playerId]?.videoDecoders = value;
   }
 
-  void record(int textureId, {String? to, String? format}) {
-    _players[textureId]?.record(to: to, format: format);
+  void record(int playerId, {String? to, String? format}) {
+    _players[playerId]?.record(to: to, format: format);
   }
 
-  Future<Uint8List?> snapshot(int textureId, {int? width, int? height}) async {
-    Uint8List? data;
-    final player = _players[textureId];
-    if (player == null) {
-      return data;
-    }
-    return _players[textureId]?.snapshot(width: width, height: height);
+  Future<Uint8List?> snapshot(int playerId, {int? width, int? height}) async {
+    return _players[playerId]?.snapshot(width: width, height: height);
   }
 
-  void setRange(int textureId, {required int from, int to = -1}) {
-    _players[textureId]?.setRange(from: from, to: to);
+  void setRange(int playerId, {required int from, int to = -1}) {
+    _players[playerId]?.setRange(from: from, to: to);
   }
 
-  void setBufferRange(
-    int textureId, {
-    int min = -1,
-    int max = -1,
-    bool drop = false,
-  }) {
-    _players[textureId]?.setBufferRange(min: min, max: max, drop: drop);
+  void setBufferRange(int playerId,
+      {int min = -1, int max = -1, bool drop = false}) {
+    _players[playerId]?.setBufferRange(min: min, max: max, drop: drop);
   }
 
-  Future<void> fastSeekTo(int textureId, Duration position) async {
+  Future<void> fastSeekTo(int playerId, Duration position) async {
     return _seekToWithFlags(
-      textureId,
-      position,
-      mdk.SeekFlag(_seekFlags | mdk.SeekFlag.keyFrame),
-    );
+        playerId, position, mdk.SeekFlag(_seekFlags | mdk.SeekFlag.keyFrame));
   }
 
-  Future<void> step(int textureId, int frames) async {
-    final player = _players[textureId];
-    if (player == null) {
-      return;
-    }
+  Future<void> step(int playerId, int frames) async {
+    final player = _players[playerId];
+    if (player == null) return;
     player.seek(
       position: frames,
       flags: const mdk.SeekFlag(mdk.SeekFlag.frame | mdk.SeekFlag.fromNow),
     );
   }
 
-  void setBrightness(int textureId, double value) {
-    _players[textureId]?.setVideoEffect(mdk.VideoEffect.brightness, [value]);
+  void setBrightness(int playerId, double value) {
+    _players[playerId]?.setVideoEffect(mdk.VideoEffect.brightness, [value]);
   }
 
-  void setContrast(int textureId, double value) {
-    _players[textureId]?.setVideoEffect(mdk.VideoEffect.contrast, [value]);
+  void setContrast(int playerId, double value) {
+    _players[playerId]?.setVideoEffect(mdk.VideoEffect.contrast, [value]);
   }
 
-  void setHue(int textureId, double value) {
-    _players[textureId]?.setVideoEffect(mdk.VideoEffect.hue, [value]);
+  void setHue(int playerId, double value) {
+    _players[playerId]?.setVideoEffect(mdk.VideoEffect.hue, [value]);
   }
 
-  void setSaturation(int textureId, double value) {
-    _players[textureId]?.setVideoEffect(mdk.VideoEffect.saturation, [value]);
+  void setSaturation(int playerId, double value) {
+    _players[playerId]?.setVideoEffect(mdk.VideoEffect.saturation, [value]);
   }
 
-  void setProgram(int textureId, int programId) {
-    _players[textureId]?.setActiveTracks(mdk.MediaType.unknown, [programId]);
+  void setProgram(int playerId, int programId) {
+    _players[playerId]?.setActiveTracks(mdk.MediaType.unknown, [programId]);
   }
 
-  // embedded tracks, can be main data source from create(), or external media source via setExternalAudio
-  void setAudioTracks(int textureId, List<int> value) {
-    _players[textureId]?.activeAudioTracks = value;
+// embedded tracks, can be main data source from create(), or external media source via setExternalAudio
+  void setAudioTracks(int playerId, List<int> value) {
+    _players[playerId]?.activeAudioTracks = value;
   }
 
-  List<int>? getActiveAudioTracks(int textureId) {
-    return _players[textureId]?.activeAudioTracks;
+  List<int>? getActiveAudioTracks(int playerId) {
+    return _players[playerId]?.activeAudioTracks;
   }
 
-  void setVideoTracks(int textureId, List<int> value) {
-    _players[textureId]?.activeVideoTracks = value;
+  void setVideoTracks(int playerId, List<int> value) {
+    _players[playerId]?.activeVideoTracks = value;
   }
 
-  List<int>? getActiveVideoTracks(int textureId) {
-    return _players[textureId]?.activeVideoTracks;
+  List<int>? getActiveVideoTracks(int playerId) {
+    return _players[playerId]?.activeVideoTracks;
   }
 
-  void setSubtitleTracks(int textureId, List<int> value) {
-    _players[textureId]?.activeSubtitleTracks = value;
+  void setSubtitleTracks(int playerId, List<int> value) {
+    _players[playerId]?.activeSubtitleTracks = value;
   }
 
-  List<int>? getActiveSubtitleTracks(int textureId) {
-    return _players[textureId]?.activeSubtitleTracks;
+  List<int>? getActiveSubtitleTracks(int playerId) {
+    return _players[playerId]?.activeSubtitleTracks;
   }
 
-  // external track. can select external tracks via setAudioTracks()
-  void setExternalAudio(int textureId, String uri) {
-    _players[textureId]?.setMedia(uri, mdk.MediaType.audio);
+// external track. can select external tracks via setAudioTracks()
+  void setExternalAudio(int playerId, String uri) {
+    _players[playerId]?.setMedia(uri, mdk.MediaType.audio);
   }
 
-  void setExternalVideo(int textureId, String uri) {
-    _players[textureId]?.setMedia(uri, mdk.MediaType.video);
+  void setExternalVideo(int playerId, String uri) {
+    _players[playerId]?.setMedia(uri, mdk.MediaType.video);
   }
 
-  void setExternalSubtitle(int textureId, String uri) {
-    _players[textureId]?.setMedia(uri, mdk.MediaType.subtitle);
+  void setExternalSubtitle(int playerId, String uri) {
+    _players[playerId]?.setMedia(uri, mdk.MediaType.subtitle);
+  }
+
+  void onSubtitleText(int playerId,
+      void Function(double start, double end, List<String> text)? callback) {
+    _players[playerId]?.onSubtitleText(callback);
   }
 
   Future<void> _seekToWithFlags(
-    int textureId,
-    Duration position,
-    mdk.SeekFlag flags,
-  ) async {
-    final player = _players[textureId];
-    if (player == null) {
-      return;
-    }
+      int playerId, Duration position, mdk.SeekFlag flags) async {
+    final player = _players[playerId];
+    if (player == null) return;
+
     if (player.isLive) {
       final bufMax = player.buffered();
       final pos = player.position;
