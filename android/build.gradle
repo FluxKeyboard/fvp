@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.9.1")
+        classpath("com.android.tools.build:gradle:8.13.2")
     }
 }
 
@@ -50,8 +50,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     defaultConfig {
@@ -101,9 +101,14 @@ def flutterSdkVersion = {
         }
     }
     assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
-    def version = file(flutterSdkPath + "/version")
-    assert version.exists(), "flutter version file not found"
-    return version.text.trim()
+    def versionFile = file(flutterSdkPath + '/bin/cache/flutter.version.json')
+    if (!versionFile.exists()) {
+        def version = file(flutterSdkPath + '/version')
+        assert version.exists(), 'flutter version file not found'
+        return version.text.trim()
+    }
+    def versionJson = new groovy.json.JsonSlurper().parseText(versionFile.text)
+    return versionJson.flutterVersion
 }()
 
 def preprocessJava(Map textMap) {

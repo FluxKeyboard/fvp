@@ -1,4 +1,4 @@
-// Copyright 2022-2025 Wang Bin. All rights reserved.
+// Copyright 2022-2026 Wang Bin. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 import 'dart:async';
@@ -38,8 +38,8 @@ class Player {
             final category = message[2] as String;
             final detail = message[3] as String;
             final ev = MediaEvent(error, category, detail);
-            for (final cb in _eventCb) {
-              cb(ev);
+            if (_eventCb.hasListener) {
+              _eventCb.add(ev);
             }
           }
         case 1:
@@ -47,8 +47,11 @@ class Player {
             // state
             final oldValue = message[1] as int;
             final newValue = message[2] as int;
-            for (final cb in _stateCb) {
-              cb(PlaybackState.from(oldValue), PlaybackState.from(newValue));
+            if (_stateCb.hasListener) {
+              _stateCb.add((
+                oldValue: PlaybackState.from(oldValue),
+                newValue: PlaybackState.from(newValue)
+              ));
             }
             Libfvp.replyType(nativeHandle, type, nullptr);
           }
@@ -58,8 +61,11 @@ class Player {
             final oldValue = message[1] as int;
             final newValue = message[2] as int;
             bool ret = true;
-            for (var cb in _statusCb) {
-              ret = cb(MediaStatus(oldValue), MediaStatus(newValue)) && ret;
+            if (_statusCb.hasListener) {
+              _statusCb.add((
+                oldValue: MediaStatus(oldValue),
+                newValue: MediaStatus(newValue)
+              ));
             }
             rep.ref.mediaStatus.ret = ret;
             Libfvp.replyType(nativeHandle, type, rep.cast());
@@ -124,10 +130,13 @@ class Player {
       _receivePort.sendPort.nativePort,
     );
 
-    onStateChanged((oldValue, newValue) {
-      _state = newValue;
+    onStateChanged.listen((event) {
+      _state = event.newValue;
     });
-    onMediaStatus((oldValue, newValue) {
+    Libfvp.registerType(nativeHandle, 1, false);
+    onMediaStatus.listen((event) {
+      final oldValue = event.oldValue;
+      final newValue = event.newValue;
       if (!oldValue.test(MediaStatus.loaded) &&
           newValue.test(MediaStatus.loaded)) {
         _setVideoSize();
@@ -150,9 +159,9 @@ class Player {
           _videoSize.complete(null);
         }
       }
-      return true;
     });
-    onEvent((e) {
+    Libfvp.registerType(nativeHandle, 2, false);
+    onEvent.listen((e) {
       if (_videoSize.isCompleted) {
         return;
       }
@@ -160,21 +169,27 @@ class Player {
         _setVideoSize();
       }
     });
+    Libfvp.registerType(nativeHandle, 0, false);
   }
 
-  /// Release resources
-  void dispose() async {
+  /// Release resources.
+  void dispose() => unawaited(disposeAsync());
+
+  /// Release resources and wait for native teardown to finish.
+  Future<void> disposeAsync() async {
     if (_pp == nullptr) {
       textureId.dispose();
       return;
     }
-    // await: ensure no player ref in fvp plugin before mdkPlayerAPI_delete() in dart
     await updateTexture(width: -1);
     state = PlaybackState.stopped;
     Libfvp.unregisterPort(nativeHandle);
-    onEvent(null);
-    onStateChanged(null);
-    onMediaStatus(null);
+    _eventCb.close();
+    Libfvp.unregisterType(nativeHandle, 0);
+    _stateCb.close();
+    Libfvp.unregisterType(nativeHandle, 1);
+    _statusCb.close();
+    Libfvp.unregisterType(nativeHandle, 2);
 
     _receivePort.close();
 
@@ -197,6 +212,11 @@ class Player {
     if ((textureId.value ?? -1) >= 0) {
       await FvpPlatform.instance.releaseTexture(nativeHandle, textureId.value!);
       textureId.value = null;
+    }
+    // Releasing a texture must not wait for media/video size. That future may
+    // never complete when an in-flight load is cancelled by disposal.
+    if ((width != null && width <= 0) || (height != null && height <= 0)) {
+      return -1;
     }
     final size = await _videoSize.future;
     if (size == null) {
@@ -697,7 +717,63 @@ class Player {
     _getVid(),
   );
 
-  // Note: mapPoint(List<double>) API could be added for coordinate mapping
+  /// Set region-of-interest mapping for video display
+  /// https://github.com/wang-bin/mdk-sdk/wiki/Player-APIs#void-setpointmapconst-float-videoroi-const-float-viewroi--nullptr-int-count--2-void-vo_opaque--nullptr
+  void setPointMap(
+      {List<double>? videoRoi, List<double>? viewRoi, int count = 2}) {
+    final cv = (videoRoi != null)
+        ? () {
+            final p = calloc<Float>(count * 2);
+            for (int i = 0; i < videoRoi.length; ++i) {
+              p[i] = videoRoi[i];
+            }
+            return p;
+          }()
+        : nullptr;
+    final cw = (viewRoi != null)
+        ? () {
+            final p = calloc<Float>(count * 2);
+            for (int i = 0; i < viewRoi.length; ++i) {
+              p[i] = viewRoi[i];
+            }
+            return p;
+          }()
+        : nullptr;
+    _player.ref.setPointMap.asFunction<
+            void Function(Pointer<mdkPlayer>, Pointer<Float>, Pointer<Float>,
+                int, Pointer<Void>)>()(
+        _player.ref.object, cv.cast(), cw.cast(), count, _getVid());
+    if (cv != nullptr) {
+      calloc.free(cv);
+    }
+    if (cw != nullptr) {
+      calloc.free(cw);
+    }
+  }
+
+  /// Map a point between viewport coordinates and video frame coordinates.
+  /// Returns the mapped coordinates as a record `({double x, double y})`.
+  /// https://github.com/wang-bin/mdk-sdk/wiki/Player-APIs#void-mappointmapdirection-dir-float-x-float-y-float-z--nullptr-void-vo_opaque--nullptr
+  ({double x, double y}) mapPoint(
+    MapDirection direction, {
+    required double x,
+    required double y,
+  }) {
+    final cx = calloc<Float>();
+    final cy = calloc<Float>();
+    final cz = calloc<Float>();
+    cx.value = x;
+    cy.value = y;
+    _player.ref.mapPoint.asFunction<
+            void Function(Pointer<mdkPlayer>, int, Pointer<Float>,
+                Pointer<Float>, Pointer<Float>, Pointer<Void>)>()(
+        _player.ref.object, direction.rawValue, cx, cy, cz, _getVid());
+    final result = (x: cx.value, y: cy.value);
+    calloc.free(cx);
+    calloc.free(cy);
+    calloc.free(cz);
+    return result;
+  }
 
   /// rotate video content around the center. [degree] can be 0, 90, 180, 270 in counterclockwise.
   /// https://github.com/wang-bin/mdk-sdk/wiki/Player-APIs#void-rotateint-degree-void-vo_opaque--nullptr
@@ -787,50 +863,20 @@ class Player {
   }
   // callbacks
 
-  /// Set [MediaEvent] callback.
+  /// Get a [MediaEvent] stream.
   /// https://github.com/wang-bin/mdk-sdk/wiki/Player-APIs#player-oneventstdfunctionboolconst-mediaevent-cb-callbacktoken-token--nullptr
-  void onEvent(void Function(MediaEvent)? callback) {
-    if (callback == null) {
-      _eventCb.clear();
-      Libfvp.unregisterType(nativeHandle, 0);
-    } else {
-      _eventCb.add(callback);
-      Libfvp.registerType(nativeHandle, 0, false);
-    }
-  }
+  Stream<MediaEvent> get onEvent => _eventCb.stream;
 
-  /// Set a [PlaybackState] change callback.
+  /// Get a [PlaybackState] change stream.
   /// https://github.com/wang-bin/mdk-sdk/wiki/Player-APIs#player-onstatechangedstdfunctionvoidstate-cb
-  // reply: true to let native code wait for dart callback result
-  void onStateChanged(
-    void Function(PlaybackState oldValue, PlaybackState newValue)? callback, {
-    bool reply = false,
-  }) {
-    if (callback == null) {
-      _stateCb.clear();
-      Libfvp.unregisterType(nativeHandle, 1);
-    } else {
-      _stateCb.add(callback);
-      Libfvp.registerType(nativeHandle, 1, reply);
-    }
-  }
+  Stream<({PlaybackState oldValue, PlaybackState newValue})>
+      get onStateChanged => _stateCb.stream;
 
-  /// Add a [MediaStatus] callback or remove all callbacks.
+  /// Get a [MediaStatus] change stream.
   /// https://github.com/wang-bin/mdk-sdk/wiki/Player-APIs#player-onmediastatusstdfunctionboolmediastatus-oldvalue-mediastatus-newvalue-cb-callbacktoken-token--nullptr
-  // reply: true to let native code wait for dart callback result, may result in dead lock because when native waiting main isolate reply, main isolate may execute another task(e.g. frequent seekTo) which also acquire the same lock in native
-  // only the last callback reply parameter works
-  void onMediaStatus(
-    bool Function(MediaStatus oldValue, MediaStatus newValue)? callback, {
-    bool reply = false,
-  }) {
-    if (callback == null) {
-      _statusCb.clear();
-      Libfvp.unregisterType(nativeHandle, 2);
-    } else {
-      _statusCb.add(callback);
-      Libfvp.registerType(nativeHandle, 2, reply);
-    }
-  }
+// reply: true to let native code wait for dart callback result, may result in dead lock because when native waiting main isolate reply, main isolate may execute another task(e.g. frequent seekTo) which also acquire the same lock in native
+  Stream<({MediaStatus oldValue, MediaStatus newValue})> get onMediaStatus =>
+      _statusCb.stream;
 
   void onSubtitleText(
     void Function(double start, double end, List<String> text)? callback,
@@ -894,10 +940,11 @@ class Player {
   Completer<int>? _seeked;
   final _receivePort = ReceivePort();
 
-  final _eventCb = <Function(MediaEvent)>[];
-  final _stateCb = <Function(PlaybackState oldValue, PlaybackState newValue)>[];
-  final _statusCb =
-      <bool Function(MediaStatus oldValue, MediaStatus newValue)>[];
+  final _eventCb = StreamController<MediaEvent>.broadcast();
+  final _stateCb = StreamController<
+      ({PlaybackState oldValue, PlaybackState newValue})>.broadcast();
+  final _statusCb = StreamController<
+      ({MediaStatus oldValue, MediaStatus newValue})>.broadcast();
   Function(double start, double end, List<String> text)? _subtitleCb;
   Future<bool> Function()? _prepareCb;
 

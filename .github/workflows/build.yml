@@ -18,6 +18,17 @@ on:
     - cron: '0 6 * * 0'
 
 jobs:
+  CMake-tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v6
+    - run: cmake -S cmake/tests -B build/cmake-tests
+    - run: ctest -C Release --output-on-failure
+      working-directory: build/cmake-tests
+
   macOS:
     runs-on: macos-15
     defaults:
@@ -26,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: 'recursive'
     - uses: subosito/flutter-action@v2
@@ -41,7 +52,7 @@ jobs:
         mv build/macos/Build/Products/Release/fvp_example.app .
         cmake -E tar cvf fvp_example_macos.7z --format=7zip fvp_example.app
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: fvp-example-macOS
         path: example/fvp_example_macos.7z
@@ -54,7 +65,7 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: 'recursive'
     - uses: subosito/flutter-action@v2
@@ -68,7 +79,7 @@ jobs:
         mv build/ios/iphoneos/Runner.app .
         cmake -E tar cvf fvp_example_ios.7z --format=7zip Runner.app
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: fvp-example-iOS
         path: example/fvp_example_ios.7z
@@ -82,13 +93,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ['3.19.x', 'any']      # 3.19 for win7
+        version: ['any']      # 3.19 for win7, but requires vs2019 on gha
         channel: ['stable', 'beta']
-        exclude:
-          - version: '3.19.x'
-            channel: 'beta'
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: 'recursive'
     - uses: subosito/flutter-action@v2
@@ -102,7 +110,7 @@ jobs:
     - run: mv build/windows/x64/runner/Release .
     - run: cmake -E tar cvf fvp_example_windows-flutter-${{ matrix.version }}-${{ matrix.channel }}.7z --format=7zip Release
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: fvp-example-windows-flutter-${{ matrix.version }}-${{ matrix.channel }}
         path: |
@@ -117,13 +125,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ['3.10.x', 'any']
+        version: ['any']
         channel: ['stable', 'beta']
-        exclude:
-          - version: '3.10.x'
-            channel: 'beta'
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: 'recursive'
     - uses: subosito/flutter-action@v2
@@ -141,7 +146,7 @@ jobs:
     - run: mv build/linux/x64/release/bundle .
     - run: cmake -E tar Jcvf fvp_example_linux-${{ matrix.channel }}-${{ matrix.version }}.tar.xz bundle
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: fvp-example-linux-${{ matrix.channel }}-${{ matrix.version }}
         path: example/fvp_example_linux*.tar.xz
@@ -159,7 +164,7 @@ jobs:
         version: ['any']
         channel: ['master']
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: 'recursive'
     - run: |
@@ -177,7 +182,7 @@ jobs:
     - run: mv build/linux/arm64/release/bundle .
     - run: cmake -E tar Jcvf fvp_example_linux-arm64-${{ matrix.channel }}-${{ matrix.version }}.tar.xz bundle
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: fvp-example-linux-arm64-${{ matrix.channel }}-${{ matrix.version }}
         path: example/fvp_example_linux*.tar.xz
@@ -190,7 +195,7 @@ jobs:
       run:
         working-directory: example
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: 'recursive'
     - name: Install dependencies
@@ -204,7 +209,7 @@ jobs:
     - run: mv build/linux/arm64/release/bundle .
     - run: cmake -E tar Jcvf fvp_example_linux-arm64-snap.tar.xz bundle
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: fvp-example-linux-arm64-snap
         path: example/fvp_example_linux*.tar.xz
@@ -219,7 +224,7 @@ jobs:
       matrix:
         target: [linux] #, apk]
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: 'recursive'
     - uses: actions/setup-java@v5
@@ -247,7 +252,7 @@ jobs:
         host: [ubuntu]
         version: ['3.22.x', 'any']
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: 'recursive'
     - uses: subosito/flutter-action@v2
@@ -264,7 +269,7 @@ jobs:
     - run: flutter build apk --verbose
     - run: mv ./build/app/outputs/apk/release/app-release.apk fvp_example_android.apk
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: fvp-example-android-${{ matrix.host }}-${{ matrix.version }}
         path: example/fvp_example_android.apk
@@ -280,7 +285,7 @@ jobs:
       matrix:
         wasm: ['--wasm', '']
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: 'recursive'
     - uses: subosito/flutter-action@v2

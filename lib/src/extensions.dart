@@ -69,6 +69,8 @@ extension PlatformEx on Platform {
         );
       case 'android':
         return 'assets://flutter_assets/$key';
+      case 'ohos':
+        return 'rawfile://flutter_assets/$key';
     }
     return asset;
   }
